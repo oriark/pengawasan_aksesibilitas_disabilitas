@@ -834,7 +834,7 @@
 
             // Jika URL Google Apps Script sudah disisipkan di kode, kirim langsung ke Google Sheets
             if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith("https://script.google.com/")) {
-                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim ke Google Sheets...';
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim ke Database...';
                 submitBtn.disabled = true;
 
                 try {
@@ -850,9 +850,9 @@
                     database.unshift(item);
                     renderDatabaseTable();
                     resetFormFields();
-                    showNotification("Data & foto berhasil terkirim ke Google Sheets!", "success");
+                    showNotification("Data & foto berhasil terkirim Database!", "success");
                 } catch (error) {
-                    showNotification("Gagal mengirim ke Sheets, tersimpan lokal: " + error.message, "error");
+                    showNotification("Gagal mengirim ke Database, tersimpan lokal: " + error.message, "error");
                     database.unshift(item);
                     renderDatabaseTable();
                     resetFormFields();
@@ -865,7 +865,7 @@
                 database.unshift(item);
                 renderDatabaseTable();
                 resetFormFields();
-                showNotification("Tersimpan di tabel lokal (Isi GOOGLE_SCRIPT_URL di kode untuk simpan ke Sheets).", "warning");
+                showNotification("Tersimpan di tabel lokal (Isi URL di kode untuk simpan ke Database).", "warning");
             }
         }
 
@@ -1115,8 +1115,8 @@
                         </div>
                         <div style="text-align: center; width: 40%;">
                             <p style="margin: 0;">${signLocation}</p>
-                            <p style="margin: 2px 0 60px 0; font-weight: bold;">Tim Pengawas / HWDI NTT</p>
-                            <p style="margin: 0; font-weight: bold; border-bottom: 1px solid #0f172a; display: inline-block; padding-bottom: 2px;">${signerName}</p>
+                            <p style="margin: 2px 0 60px 0; font-weight: bold;">HWDI NTT</p>
+                            <p style="margin: 0; font-weight: bold; border-bottom: 1px solid #0f172a; display: inline-block; padding-bottom: 2px;">( .................................................... )</p>
                         </div>
                     </div>
                 `;
