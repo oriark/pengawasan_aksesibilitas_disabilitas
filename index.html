@@ -3,262 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instrumen Pengawasan Sarpras Disabilitas & Kelompok Rentan</title>
-    <!-- Tailwind CSS CDN -->
+    <title>Instrumen Pengawasan Sarpras Disabilitas & Kelompok Rentan - NTT</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Chart.js Library untuk Visualisasi Diagram -->
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js untuk Diagram Statistik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Print Stylesheet for PDF Export */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printArea, #printArea * {
+                visibility: visible;
+            }
+            #printArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+                padding: 15px;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                size: A4 landscape;
+                margin: 12mm;
+            }
+            table {
+                border-collapse: collapse !important;
+                width: 100% !important;
+            }
+            th, td {
+                border: 1px solid #cbd5e1 !important;
+                padding: 6px 8px !important;
+                font-size: 11px !important;
+            }
+            tr {
+                page-break-inside: avoid;
+            }
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col">
+<body class="text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
 
-    <!-- Header Aplikasi -->
-    <header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-900 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0 no-print"></div>
+
+    <!-- Header Section -->
+    <header class="bg-gradient-to-r from-blue-800 via-blue-700 to-indigo-800 text-white shadow-lg sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2.5 bg-white/10 rounded-xl backdrop-blur-md border border-white/20">
-                        <i class="fa-solid fa-universal-access text-3xl text-yellow-300"></i>
+                <div class="flex items-start sm:items-center space-x-3.5">
+                    <div class="bg-white/15 backdrop-blur-sm p-2.5 rounded-xl border border-white/20 shrink-0 mt-0.5 sm:mt-0">
+                        <i class="fa-solid fa-wheelchair-move text-2xl text-amber-300"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">E-Pengawasan Sarpras Disabilitas & Kelompok Rentan</h1>
-                        <p class="text-xs sm:text-sm text-blue-100 flex items-center gap-2 mt-0.5">
-                            <span><i class="fa-solid fa-shield-halved text-yellow-400 mr-1"></i> Ombudsman NTT & HWDI NTT</span>
-                        </p>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-[11px] font-bold uppercase tracking-wider bg-amber-400 text-slate-900 px-2 py-0.5 rounded-md">Provinsi NTT</span>
+                            <span class="text-xs text-blue-200 font-medium">Pengawasan Pelayanan Publik</span>
+                        </div>
+                        <h1 class="text-lg sm:text-xl font-bold tracking-tight mt-0.5 leading-snug">
+                            Instrumen Pemantauan Sarpras Kelompok Rentan & Disabilitas
+                        </h1>
                     </div>
                 </div>
 
-                <!-- Tab Navigasi Utilitas -->
-                <div class="flex flex-wrap bg-blue-950/40 p-1.5 rounded-xl border border-white/10 backdrop-blur-md self-start md:self-auto gap-2">
-                    <button id="tabFormBtn" onclick="switchTab('form')" class="flex items-center px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-white text-blue-900 shadow-md">
-                        <i class="fa-solid fa-pen-to-square mr-2"></i> Form & Data
-                    </button>
-                    <button id="tabStatsBtn" onclick="switchTab('stats')" class="flex items-center px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-blue-100 hover:text-white hover:bg-white/10">
-                        <i class="fa-solid fa-chart-column mr-2"></i> Diagram & Statistik
-                    </button>
-                    <button onclick="openPrintModal()" class="flex items-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-md">
-                        <i class="fa-solid fa-file-pdf mr-1.5"></i> Cetak PDF
+                <!-- Navigation Tabs & Print Action -->
+                <div class="flex flex-wrap items-center gap-2 self-start md:self-auto">
+                    <div class="flex bg-blue-950/50 p-1 rounded-xl border border-white/15 backdrop-blur-sm">
+                        <button id="tabFormBtn" onclick="switchTab('form')" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-white text-blue-800 shadow-sm flex items-center gap-2">
+                            <i class="fa-solid fa-clipboard-check"></i>
+                            <span>Form & Data</span>
+                        </button>
+                        <button id="tabStatsBtn" onclick="switchTab('stats')" class="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-blue-100 hover:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span>Diagram & Statistik</span>
+                        </button>
+                    </div>
+                    
+                    <button onclick="openPrintModal()" class="bg-amber-400 hover:bg-amber-300 text-slate-900 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span class="hidden sm:inline">Cetak PDF</span>
                     </button>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Konten Utama -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-6 sm:px-6 lg:px-8">
-
-        <!-- TAB 1: FORMULIR INPUT & TABLE DATABASE REAL-TIME -->
-        <div id="sectionForm" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 no-print">
+        
+        <!-- SECTION 1: FORM INPUT & DATABASE TABLE -->
+        <div id="sectionForm" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            <!-- Left Panel: Form Penilaian (5 Cols) -->
-            <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
+            <!-- Left Panel: Input Form (5 Cols) -->
+            <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+                <div class="border-b border-slate-100 pb-4 mb-5 flex items-center justify-between">
+                    <div>
                         <h2 class="text-lg font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-clipboard-check text-blue-600 mr-2.5"></i> Formulir Evaluasi
+                            <i class="fa-solid fa-pen-to-square text-blue-600 mr-2.5"></i> Input Hasil Pemantauan
                         </h2>
-                        <span class="text-xs bg-blue-50 text-blue-700 font-semibold px-2.5 py-1 rounded-full border border-blue-200">
-                            NTT Region
-                        </span>
+                        <p class="text-xs text-slate-500 mt-0.5">Lengkapi data pengawasan sarana & prasarana layanan publik</p>
+                    </div>
+                </div>
+
+                <form id="auditForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                    <!-- 23 Lokus NTT -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Lokus Wilayah (23 Kab/Kota/Provinsi NTT) <span class="text-red-500">*</span>
+                        </label>
+                        <select id="lokus" required class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <option value="">-- Pilih Lokus --</option>
+                            <option value="Provinsi Nusa Tenggara Timur">Provinsi Nusa Tenggara Timur</option>
+                            <option value="Kota Kupang">Kota Kupang</option>
+                            <option value="Kabupaten Kupang">Kabupaten Kupang</option>
+                            <option value="Kabupaten Timor Tengah Selatan">Kabupaten Timor Tengah Selatan (TTS)</option>
+                            <option value="Kabupaten Timor Tengah Utara">Kabupaten Timor Tengah Utara (TTU)</option>
+                            <option value="Kabupaten Belu">Kabupaten Belu</option>
+                            <option value="Kabupaten Malaka">Kabupaten Malaka</option>
+                            <option value="Kabupaten Alor">Kabupaten Alor</option>
+                            <option value="Kabupaten Rote Ndao">Kabupaten Rote Ndao</option>
+                            <option value="Kabupaten Sabu Raijua">Kabupaten Sabu Raijua</option>
+                            <option value="Kabupaten Flores Timur">Kabupaten Flores Timur</option>
+                            <option value="Kabupaten Sikka">Kabupaten Sikka</option>
+                            <option value="Kabupaten Ende">Kabupaten Ende</option>
+                            <option value="Kabupaten Nagekeo">Kabupaten Nagekeo</option>
+                            <option value="Kabupaten Ngada">Kabupaten Ngada</option>
+                            <option value="Kabupaten Manggarai Timur">Kabupaten Manggarai Timur</option>
+                            <option value="Kabupaten Manggarai">Kabupaten Manggarai</option>
+                            <option value="Kabupaten Manggarai Barat">Kabupaten Manggarai Barat</option>
+                            <option value="Kabupaten Lembata">Kabupaten Lembata</option>
+                            <option value="Kabupaten Sumba Timur">Kabupaten Sumba Timur</option>
+                            <option value="Kabupaten Sumba Tengah">Kabupaten Sumba Tengah</option>
+                            <option value="Kabupaten Sumba Barat">Kabupaten Sumba Barat</option>
+                            <option value="Kabupaten Sumba Barat Daya">Kabupaten Sumba Barat Daya (SBD)</option>
+                        </select>
                     </div>
 
-                    <form id="auditForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                        <!-- Lokus Kabupaten/Kota NTT -->
+                    <!-- Nama Asesor & Instansi -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                                Lokus Wilayah (Kab/Kota/Prov NTT) <span class="text-red-500">*</span>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Nama Petugas / Asesor <span class="text-red-500">*</span>
                             </label>
-                            <select id="lokus" required class="w-full text-sm bg-slate-50 border border-slate-300 text-slate-900 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all">
-                                <option value="">-- Pilih Lokus --</option>
-                                <option value="Provinsi NTT">Pemerintah Provinsi NTT</option>
-                                <option value="Kota Kupang">Kota Kupang</option>
-                                <option value="Kab. Alor">Kabupaten Alor</option>
-                                <option value="Kab. Belu">Kabupaten Belu</option>
-                                <option value="Kab. Ende">Kabupaten Ende</option>
-                                <option value="Kab. Flores Timur">Kabupaten Flores Timur</option>
-                                <option value="Kab. Kupang">Kabupaten Kupang</option>
-                                <option value="Kab. Lembata">Kabupaten Lembata</option>
-                                <option value="Kab. Malaka">Kabupaten Malaka</option>
-                                <option value="Kab. Manggarai">Kabupaten Manggarai</option>
-                                <option value="Kab. Manggarai Barat">Kabupaten Manggarai Barat</option>
-                                <option value="Kab. Manggarai Timur">Kabupaten Manggarai Timur</option>
-                                <option value="Kab. Nagekeo">Kabupaten Nagekeo</option>
-                                <option value="Kab. Ngada">Kabupaten Ngada</option>
-                                <option value="Kab. Rote Ndao">Kabupaten Rote Ndao</option>
-                                <option value="Kab. Sabu Raijua">Kabupaten Sabu Raijua</option>
-                                <option value="Kab. Sikka">Kabupaten Sikka</option>
-                                <option value="Kab. Sumba Barat">Kabupaten Sumba Barat</option>
-                                <option value="Kab. Sumba Barat Daya">Kabupaten Sumba Barat Daya</option>
-                                <option value="Kab. Sumba Tengah">Kabupaten Sumba Tengah</option>
-                                <option value="Kab. Sumba Timur">Kabupaten Sumba Timur</option>
-                                <option value="Kab. Timor Tengah Selatan">Kabupaten Timor Tengah Selatan</option>
-                                <option value="Kab. Timor Tengah Utara">Kabupaten Timor Tengah Utara</option>
-                            </select>
+                            <input type="text" id="namaAsesor" required placeholder="Contoh: Phil Max" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                         </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Instansi / Unit Layanan <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="instansi" required placeholder="Contoh: RSUD Prof. WZ Johannes" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                        </div>
+                    </div>
 
-                        <!-- Grid 2 Kolom: Asesor & Instansi -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                                    Nama Asesor <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="namaAsesor" required placeholder="Contoh: Maria (HWDI)" class="w-full text-sm bg-slate-50 border border-slate-300 text-slate-900 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all">
+                    <!-- Indikator Sarpras (Fisik & Non-Fisik) -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Indikator Sarpras (Fisik & Non-Fisik) <span class="text-red-500">*</span>
+                        </label>
+                        <select id="indikator" required onchange="updateIndikatorInfo()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <option value="">-- Pilih Indikator --</option>
+                            <optgroup label="A. AKSESIBILITAS FISIK">
+                                <option value="Jalur Pemandu (Guiding Block)">1. Jalur Pemandu (Guiding Block)</option>
+                                <option value="Area Parkir Khusus Disabilitas">2. Area Parkir Khusus Disabilitas</option>
+                                <option value="Jalur Landai (Ramp) & Pegangan Rambat">3. Jalur Landai (Ramp) & Pegangan Rambat</option>
+                                <option value="Koridor & Jalur Evakuasi">4. Koridor & Jalur Evakuasi</option>
+                                <option value="Lift Disabilitas">5. Lift Disabilitas</option>
+                                <option value="Toilet Khusus Disabilitas">6. Toilet Khusus Disabilitas</option>
+                                <option value="Loket / Meja Layanan Prioritas">7. Loket / Meja Layanan Prioritas</option>
+                                <option value="Area / Kursi Tunggu Prioritas">8. Area / Kursi Tunggu Prioritas</option>
+                                <option value="Ruang Laktasi / Menyusui">9. Ruang Laktasi / Menyusui</option>
+                                <option value="Area Bermain Ramah Anak">10. Area Bermain Ramah Anak</option>
+                                <option value="Alat Bantu Mobilitas & Komunikasi">11. Alat Bantu Mobilitas & Komunikasi</option>
+                                <option value="Ruang Tenang (Disabilitas Psikososial)">12. Ruang Tenang (Disabilitas Psikososial)</option>
+                            </optgroup>
+                            <optgroup label="B. NON-FISIK (KEBIJAKAN, INFORMASI, AKOMODASI & SDM)">
+                                <option value="SOP Layanan Prioritas">13. SOP Layanan Prioritas (Kebijakan & Kepemimpinan)</option>
+                                <option value="Informasi Layanan Ramah Disabilitas">14. Informasi Layanan Ramah Disabilitas (Info & Komunikasi)</option>
+                                <option value="Layanan Pengaduan yang Aksesibel">15. Layanan Pengaduan yang Aksesibel (Info & Komunikasi)</option>
+                                <option value="Ketersediaan Petugas Pendamping">16. Ketersediaan Petugas Pendamping (Akomodasi yang Layak)</option>
+                                <option value="Pelatihan Petugas Front Office">17. Pelatihan Petugas Front Office (Sumber Daya Manusia)</option>
+                            </optgroup>
+                        </select>
+                        
+                        <!-- Box Penjelasan Aspek, Keterangan & Ketentuan -->
+                        <div id="indikatorHintBox" class="hidden mt-2.5 p-3.5 bg-blue-50/90 border border-blue-200 rounded-xl text-xs text-slate-700 space-y-1.5">
+                            <div class="flex items-center justify-between border-b border-blue-200/70 pb-1.5">
+                                <span class="font-bold text-blue-900" id="hintAspekBadge">Aspek: -</span>
+                                <span class="text-[11px] font-semibold bg-blue-600 text-white px-2 py-0.5 rounded" id="hintKategoriBadge">Fisik</span>
                             </div>
-                            <div>
-                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                                    Unit Layanan <span class="text-red-500">*</span>
-                                </label>
-                                <input type="text" id="instansi" required placeholder="Dinas Sosial / Puskesmas" class="w-full text-sm bg-slate-50 border border-slate-300 text-slate-900 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all">
+                            <p><strong class="text-slate-800">Keterangan:</strong> <span id="hintKeterangan">-</span></p>
+                            <p><strong class="text-slate-800">Ketentuan Teknis:</strong> <span id="hintKetentuan">-</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Kesesuaian Standar -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Kesesuaian Standar <span class="text-red-500">*</span>
+                        </label>
+                        <div class="grid grid-cols-3 gap-2.5">
+                            <label id="lblSesuai" class="cursor-pointer border-2 border-slate-200 rounded-xl p-2.5 text-center transition-all hover:bg-emerald-50/50 flex flex-col items-center justify-center gap-1">
+                                <input type="radio" name="kondisi" value="Sesuai Standar" required class="sr-only" onchange="handleKondisiChange(this)">
+                                <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                                <span class="text-xs font-bold text-slate-700">Sesuai Standar</span>
+                            </label>
+
+                            <label id="lblTidakSesuai" class="cursor-pointer border-2 border-slate-200 rounded-xl p-2.5 text-center transition-all hover:bg-amber-50/50 flex flex-col items-center justify-center gap-1">
+                                <input type="radio" name="kondisi" value="Tidak Sesuai Standar" required class="sr-only" onchange="handleKondisiChange(this)">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-lg"></i>
+                                <span class="text-xs font-bold text-slate-700">Tidak Sesuai</span>
+                            </label>
+
+                            <label id="lblTidakAda" class="cursor-pointer border-2 border-slate-200 rounded-xl p-2.5 text-center transition-all hover:bg-rose-50/50 flex flex-col items-center justify-center gap-1">
+                                <input type="radio" name="kondisi" value="Tidak Tersedia" required class="sr-only" onchange="handleKondisiChange(this)">
+                                <i class="fa-solid fa-circle-xmark text-rose-600 text-lg"></i>
+                                <span class="text-xs font-bold text-slate-700">Tidak Ada</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Catatan Temuan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Catatan Temuan / Rekomendasi Lapangan
+                        </label>
+                        <textarea id="catatan" rows="2" placeholder="Tuliskan kondisi aktual, ukuran, atau kendala yang ditemukan di lapangan..." class="w-full px-3.5 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"></textarea>
+                    </div>
+
+                    <!-- Potret / Dokumentasi -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Potret / Dokumentasi Lapangan
+                        </label>
+                        <div class="border-2 border-dashed border-slate-300 rounded-xl p-3 text-center hover:border-blue-500 transition-colors bg-slate-50/70">
+                            <input type="file" id="fotoInput" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(event)">
+                            <div id="uploadPlaceholder" onclick="document.getElementById('fotoInput').click()" class="cursor-pointer py-2">
+                                <i class="fa-solid fa-camera text-2xl text-blue-600 mb-1"></i>
+                                <p class="text-xs font-semibold text-slate-700">Klik untuk Ambil Foto / Pilih Gambar</p>
+                                <p class="text-[11px] text-slate-400">Otomatis terkompresi sebelum dikirim ke Google Drive</p>
                             </div>
-                        </div>
-
-                        <!-- Dropdown Indikator Terintegrasi Aspek -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                                Indikator Sarpras & Layanan <span class="text-red-500">*</span>
-                            </label>
-                            <select id="indikator" required onchange="updateIndikatorHint()" class="w-full text-sm bg-slate-50 border border-slate-300 text-slate-900 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all">
-                                <option value="">-- Pilih Indikator --</option>
-                                
-                                <optgroup label="ASPEK 1: AKSESIBILITAS FISIK (Sarpras)">
-                                    <option value="Jalur Pemandu (Guiding Block)">Jalur Pemandu (Guiding Block)</option>
-                                    <option value="Area Parkir Khusus">Area Parkir Khusus Disabilitas/Prioritas</option>
-                                    <option value="Jalur Landai (Ramp)">Jalur Landai (Ramp)</option>
-                                    <option value="Koridor & Jalur Evakuasi">Koridor & Jalur Evakuasi Aksesibel</option>
-                                    <option value="Area Prioritas & Kursi Tunggu">Area Prioritas & Kursi Tunggu</option>
-                                    <option value="Toilet Khusus Disabilitas">Toilet Khusus Disabilitas</option>
-                                    <option value="Loket Pelayanan Khusus/Prioritas">Loket Pelayanan Khusus / Meja Rendah</option>
-                                    <option value="Ruang Laktasi / Menyusui">Ruang Laktasi / Menyusui</option>
-                                    <option value="Area Ramah Anak / Playroom">Area Ramah Anak</option>
-                                    <option value="Lift Disabilitas">Lift Aksesibel Disabilitas</option>
-                                    <option value="Alat Bantu Mobilitas">Alat Bantu Mobilitas (Kursi Roda/Kruk)</option>
-                                    <option value="Ruang Tenang (Sensory Room)">Ruang Tenang / Sensory Room</option>
-                                </optgroup>
-
-                                <optgroup label="ASPEK 2: KEBIJAKAN & KEPEMIMPINAN">
-                                    <option value="SOP Layanan Prioritas">SOP Layanan Ramah Kelompok Rentan & Evakuasi</option>
-                                </optgroup>
-
-                                <optgroup label="ASPEK 3: AKSESIBILITAS INFORMASI & KOMUNIKASI">
-                                    <option value="Informasi Layanan Ramah Disabilitas">Informasi Layanan Format Aksesibel (Braille/Audio/BSI)</option>
-                                    <option value="Layanan Pengaduan Aksesibel">Layanan Pengaduan yang Aksesibel</option>
-                                </optgroup>
-
-                                <optgroup label="ASPEK 4: AKOMODASI YANG LAYAK">
-                                    <option value="Ketersediaan Petugas Pendamping">Ketersediaan Petugas Pendamping Khusus</option>
-                                </optgroup>
-
-                                <optgroup label="ASPEK 5: SUMBER DAYA MANUSIA">
-                                    <option value="Pelatihan Petugas Front Office">Pelatihan Sensitivitas Disabilitas Petugas FO</option>
-                                </optgroup>
-                            </select>
-                        </div>
-
-                        <!-- Hint Panduan Teknis -->
-                        <div id="indikatorHint" class="hidden text-xs bg-blue-50/80 text-blue-900 border border-blue-200 rounded-lg p-3 space-y-1">
-                        </div>
-
-                        <!-- Radio Pilihan Kondisi -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                                Kesesuaian Standar <span class="text-red-500">*</span>
-                            </label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="kondisi" value="Sesuai" required class="peer hidden" onchange="handleKondisiChange(this.value)">
-                                    <div class="p-2.5 text-center rounded-lg border border-slate-200 peer-checked:border-green-600 peer-checked:bg-green-50 peer-checked:text-green-700 hover:bg-slate-50 transition-all">
-                                        <i class="fa-solid fa-circle-check text-base block mb-0.5"></i>
-                                        <span class="text-xs font-semibold">Sesuai</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="kondisi" value="Tidak Sesuai" class="peer hidden" onchange="handleKondisiChange(this.value)">
-                                    <div class="p-2.5 text-center rounded-lg border border-slate-200 peer-checked:border-amber-600 peer-checked:bg-amber-50 peer-checked:text-amber-700 hover:bg-slate-50 transition-all">
-                                        <i class="fa-solid fa-triangle-exclamation text-base block mb-0.5"></i>
-                                        <span class="text-xs font-semibold">Tdk Sesuai</span>
-                                    </div>
-                                </label>
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="kondisi" value="Tidak Ada" class="peer hidden" onchange="handleKondisiChange(this.value)">
-                                    <div class="p-2.5 text-center rounded-lg border border-slate-200 peer-checked:border-red-600 peer-checked:bg-red-50 peer-checked:text-red-700 hover:bg-slate-50 transition-all">
-                                        <i class="fa-solid fa-circle-xmark text-base block mb-0.5"></i>
-                                        <span class="text-xs font-semibold">Tidak Ada</span>
-                                    </div>
-                                </label>
+                            <div id="previewContainer" class="hidden relative">
+                                <img id="imagePreview" src="" alt="Preview Dokumentasi" class="max-h-40 mx-auto rounded-lg shadow-sm object-cover">
+                                <button type="button" onclick="clearPhoto()" class="mt-2 inline-flex items-center px-2.5 py-1 bg-rose-100 text-rose-700 hover:bg-rose-200 rounded-lg text-xs font-semibold">
+                                    <i class="fa-solid fa-trash-can mr-1.5"></i> Hapus Foto
+                                </button>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Upload Dokumentasi Foto / Video -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
-                                Dokumentasi (Foto/Kamera) <span id="fotoRequiredLabel" class="text-red-500">*</span>
-                            </label>
-                            <div class="flex items-center space-x-3">
-                                <label class="flex-1 flex items-center justify-center px-4 py-2.5 bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:bg-slate-100 hover:border-blue-400 transition-all">
-                                    <i class="fa-solid fa-camera text-slate-500 mr-2 text-sm"></i>
-                                    <span class="text-xs text-slate-600 font-medium">Ambil / Unggah Foto</span>
-                                    <input type="file" id="fotoInput" accept="image/*" capture="environment" class="hidden" onchange="handleFileSelect(event)">
-                                </label>
-                                <div id="previewContainer" class="hidden relative w-12 h-12 rounded-lg border border-slate-300 overflow-hidden bg-slate-100 flex-shrink-0">
-                                    <img id="imagePreview" class="w-full h-full object-cover" alt="Preview">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Catatan / Uraian Temuan -->
-                        <div>
-                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Catatan / Detail Temuan</label>
-                            <textarea id="catatan" rows="2" placeholder="Tuliskan spesifikasi, hambatan, atau keterangan tambahan..." class="w-full text-sm bg-slate-50 border border-slate-300 text-slate-900 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all"></textarea>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center text-sm">
-                            <i class="fa-solid fa-database mr-2"></i> Simpan & Kirim ke Database
-                        </button>
-                    </form>
-                </div>
+                    <!-- Submit Button -->
+                    <button type="submit" id="submitBtn" class="w-full py-3 px-4 bg-blue-700 hover:bg-blue-800 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Simpan & Kirim ke Database</span>
+                    </button>
+                </form>
             </div>
 
             <!-- Right Panel: Database Real-Time (7 Cols) -->
             <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6 flex flex-col h-full">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4 mb-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-table text-emerald-600 mr-2.5"></i> Database Real-Time
+                            <i class="fa-solid fa-table text-emerald-600 mr-2.5"></i> Database Hasil Pemantauan
                         </h2>
-                        <p class="text-xs text-slate-500">Tersimpan otomatis & siap dikonsolidasi</p>
+                        <p class="text-xs text-slate-500">Tersinkronisasi otomatis dengan Database</p>
                     </div>
-                    <span id="dataCount" class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
-                        0 Data
-                    </span>
+                    <div class="flex items-center gap-2">
+                        <button onclick="fetchDataFromSheets(true)" id="syncBtn" class="text-xs font-semibold px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-full border border-blue-200 transition-all flex items-center">
+                            <i class="fa-solid fa-rotate mr-1.5"></i> Sinkronkan
+                        </button>
+                        <span id="dataCount" class="text-xs font-semibold px-2.5 py-1.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+                            0 Data
+                        </span>
+                    </div>
                 </div>
 
                 <!-- Table Wrapper with scrollbar -->
-                <div class="flex-grow overflow-x-auto custom-scrollbar border border-slate-100 rounded-xl">
-                    <table class="w-full text-left border-collapse min-w-[650px]">
+                <div class="overflow-x-auto flex-1 rounded-xl border border-slate-200">
+                    <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-slate-100 text-slate-700 text-xs font-bold uppercase tracking-wider">
-                                <th class="p-3 border-b border-slate-200">Lokus & Instansi</th>
-                                <th class="p-3 border-b border-slate-200">Aspek & Indikator</th>
-                                <th class="p-3 border-b border-slate-200">Kondisi</th>
-                                <th class="p-3 border-b border-slate-200 text-center">Foto</th>
-                                <th class="p-3 border-b border-slate-200 text-center">Aksi</th>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                                <th class="py-3 px-3">Lokus & Instansi</th>
+                                <th class="py-3 px-3">Aspek & Indikator</th>
+                                <th class="py-3 px-3">Status</th>
+                                <th class="py-3 px-3 text-center">Foto</th>
+                                <th class="py-3 px-3 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="databaseBody" class="divide-y divide-slate-100 text-xs sm:text-sm">
+                        <tbody id="databaseBody" class="divide-y divide-slate-100 text-xs">
                             <tr>
                                 <td colspan="5" class="py-12 text-center text-slate-400">
                                     <i class="fa-solid fa-folder-open text-3xl mb-2 block text-slate-300"></i>
-                                    Belum ada data evaluasi yang dimasukkan.
+                                    Belum ada data pemantauan. Silakan isi form di samping atau klik Sinkronkan.
                                 </td>
                             </tr>
                         </tbody>
@@ -267,574 +333,635 @@
             </div>
         </div>
 
-        <!-- TAB 2: STATISTIK & VISUALISASI DIAGRAM LENGKAP -->
+        <!-- SECTION 2: STATISTIK & DIAGRAM VISUALISASI -->
         <div id="sectionStats" class="hidden space-y-6">
             
-            <!-- Header Filter Section -->
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <!-- Filter Bar & CSV Export -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
                     <div>
                         <h2 class="text-lg font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-chart-line text-blue-600 mr-2.5"></i> Visualisasi Dashboard Pengawasan
+                            <i class="fa-solid fa-chart-column text-blue-600 mr-2.5"></i> Dashboard Statistik & Rekapitulasi NTT
                         </h2>
-                        <p class="text-xs text-slate-500">Kalkulasi statistik tingkat aksesibilitas layanan publik kelompok rentan</p>
+                        <p class="text-xs text-slate-500">Filter berdasarkan Lokus, Aspek, Instansi, atau Indikator untuk mengunduh laporan khusus</p>
                     </div>
-                    
-                    <button onclick="exportCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow hover:shadow-md transition-all flex items-center justify-center">
-                        <i class="fa-solid fa-file-csv text-base mr-2"></i> Ekspor Laporan CSV
-                    </button>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="resetFilters()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-filter-circle-xmark"></i> Reset Filter
+                        </button>
+                        <button onclick="exportFilteredCSV()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center gap-2">
+                            <i class="fa-solid fa-file-csv text-sm"></i> Simpan CSV (Sesuai Filter)
+                        </button>
+                    </div>
                 </div>
 
-                <!-- Control Filters (Lokus, Aspek, Instansi, Indikator) -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100">
+                <!-- 4 Filter Selectors -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                     <div>
-                        <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Filter Lokus Wilayah</label>
-                        <select id="filterLokus" onchange="updateStats()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                            <option value="Semua">Semua Lokus (NTT)</option>
-                            <option value="Provinsi NTT">Pemerintah Provinsi NTT</option>
-                            <option value="Kota Kupang">Kota Kupang</option>
-                            <option value="Kab. Alor">Kabupaten Alor</option>
-                            <option value="Kab. Belu">Kabupaten Belu</option>
-                            <option value="Kab. Ende">Kabupaten Ende</option>
-                            <option value="Kab. Flores Timur">Kabupaten Flores Timur</option>
-                            <option value="Kab. Kupang">Kabupaten Kupang</option>
-                            <option value="Kab. Lembata">Kabupaten Lembata</option>
-                            <option value="Kab. Malaka">Kabupaten Malaka</option>
-                            <option value="Kab. Manggarai">Kabupaten Manggarai</option>
-                            <option value="Kab. Manggarai Barat">Kabupaten Manggarai Barat</option>
-                            <option value="Kab. Manggarai Timur">Kabupaten Manggarai Timur</option>
-                            <option value="Kab. Nagekeo">Kabupaten Nagekeo</option>
-                            <option value="Kab. Ngada">Kabupaten Ngada</option>
-                            <option value="Kab. Rote Ndao">Kabupaten Rote Ndao</option>
-                            <option value="Kab. Sabu Raijua">Kabupaten Sabu Raijua</option>
-                            <option value="Kab. Sikka">Kabupaten Sikka</option>
-                            <option value="Kab. Sumba Barat">Kabupaten Sumba Barat</option>
-                            <option value="Kab. Sumba Barat Daya">Kabupaten Sumba Barat Daya</option>
-                            <option value="Kab. Sumba Tengah">Kabupaten Sumba Tengah</option>
-                            <option value="Kab. Sumba Timur">Kabupaten Sumba Timur</option>
-                            <option value="Kab. Timor Tengah Selatan">Kabupaten Timor Tengah Selatan</option>
-                            <option value="Kab. Timor Tengah Utara">Kabupaten Timor Tengah Utara</option>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Lokus Wilayah</label>
+                        <select id="filterLokus" onchange="updateStats()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="ALL">Semua Lokus (23 Wilayah NTT)</option>
                         </select>
                     </div>
-
                     <div>
-                        <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Filter Aspek</label>
-                        <select id="filterAspek" onchange="updateStats()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                            <option value="Semua">Semua Aspek</option>
-                            <option value="Aksesibilitas Fisik">Aksesibilitas Fisik</option>
-                            <option value="Kebijakan & Kepemimpinan">Kebijakan & Kepemimpinan</option>
-                            <option value="Aksesibilitas Informasi & Komunikasi">Informasi & Komunikasi</option>
-                            <option value="Akomodasi yang Layak">Akomodasi yang Layak</option>
-                            <option value="Sumber Daya Manusia">Sumber Daya Manusia</option>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Aspek Penilaian</label>
+                        <select id="filterAspek" onchange="updateStats()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="ALL">Semua Aspek</option>
+                            <option value="Kebijakan dan Kepemimpinan">1. Kebijakan dan Kepemimpinan</option>
+                            <option value="Aksesibilitas Fisik">2. Aksesibilitas Fisik</option>
+                            <option value="Aksesibilitas Informasi dan Komunikasi">3. Aksesibilitas Informasi & Komunikasi</option>
+                            <option value="Akomodasi yang Layak">4. Akomodasi yang Layak</option>
+                            <option value="Sumber Daya Manusia">5. Sumber Daya Manusia</option>
                         </select>
                     </div>
-
                     <div>
-                        <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Filter Instansi</label>
-                        <select id="filterInstansi" onchange="updateStats()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                            <option value="Semua">Semua Instansi</option>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Instansi / Unit</label>
+                        <select id="filterInstansi" onchange="updateStats()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="ALL">Semua Instansi</option>
                         </select>
                     </div>
-
                     <div>
-                        <label class="block text-[11px] font-bold uppercase text-slate-500 mb-1">Filter Indikator</label>
-                        <select id="filterIndikator" onchange="updateStats()" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
-                            <option value="Semua">Semua Indikator</option>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter Indikator Sarpras</label>
+                        <select id="filterIndikator" onchange="updateStats()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="ALL">Semua Indikator</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Summary Stat Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center space-x-3">
-                    <div class="bg-blue-100 text-blue-700 p-3 rounded-xl"><i class="fa-solid fa-layer-group text-xl"></i></div>
+            <!-- Summary Metric Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-slate-500 font-semibold uppercase">Total Objek</p>
-                        <h3 id="statTotal" class="text-2xl font-bold text-slate-800">0</h3>
+                        <p class="text-xs font-semibold text-slate-500">Total Pemantauan</p>
+                        <h3 id="statTotal" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-layer-group"></i>
                     </div>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center space-x-3">
-                    <div class="bg-emerald-100 text-emerald-700 p-3 rounded-xl"><i class="fa-solid fa-circle-check text-xl"></i></div>
+                <div class="bg-white rounded-2xl p-4 border border-emerald-200 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-slate-500 font-semibold uppercase">Sesuai</p>
-                        <h3 id="statSesuai" class="text-2xl font-bold text-slate-800">0</h3>
+                        <p class="text-xs font-semibold text-emerald-700">Sesuai Standar</p>
+                        <h3 id="statSesuai" class="text-2xl font-extrabold text-emerald-600 mt-1">0</h3>
+                        <p id="pctSesuai" class="text-[11px] font-medium text-emerald-600/80">0%</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-circle-check"></i>
                     </div>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center space-x-3">
-                    <div class="bg-amber-100 text-amber-700 p-3 rounded-xl"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
+                <div class="bg-white rounded-2xl p-4 border border-amber-200 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-slate-500 font-semibold uppercase">Tdk Sesuai</p>
-                        <h3 id="statTidakSesuai" class="text-2xl font-bold text-slate-800">0</h3>
+                        <p class="text-xs font-semibold text-amber-700">Tidak Sesuai Standar</p>
+                        <h3 id="statTidakSesuai" class="text-2xl font-extrabold text-amber-600 mt-1">0</h3>
+                        <p id="pctTidakSesuai" class="text-[11px] font-medium text-amber-600/80">0%</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex items-center space-x-3">
-                    <div class="bg-red-100 text-red-700 p-3 rounded-xl"><i class="fa-solid fa-circle-xmark text-xl"></i></div>
+                <div class="bg-white rounded-2xl p-4 border border-rose-200 shadow-sm flex items-center justify-between">
                     <div>
-                        <p class="text-xs text-slate-500 font-semibold uppercase">Tidak Ada</p>
-                        <h3 id="statTidakAda" class="text-2xl font-bold text-slate-800">0</h3>
+                        <p class="text-xs font-semibold text-rose-700">Tidak Tersedia</p>
+                        <h3 id="statTidakAda" class="text-2xl font-extrabold text-rose-600 mt-1">0</h3>
+                        <p id="pctTidakAda" class="text-[11px] font-medium text-rose-600/80">0%</p>
+                    </div>
+                    <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-circle-xmark"></i>
                     </div>
                 </div>
             </div>
 
-            <!-- VISUAL DIAGRAM STATISTIK GRID (2x2 Layout) -->
+            <!-- 4 Visual Charts Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Diagram 1: Per Lokus (Stacked Bar Chart) -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fa-solid fa-map-location-dot text-blue-600 mr-2"></i> Diagram 1: Rekapitulasi per Lokus (Kab/Kota)
+                <!-- Chart 1: Per Lokus -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                        <i class="fa-solid fa-map-location-dot text-blue-600 mr-2"></i> Diagram Statistik Per Lokus (Kab/Kota/Provinsi)
                     </h3>
-                    <div class="relative flex-grow min-h-[260px]">
+                    <p class="text-xs text-slate-400 mb-4">Sebaran kesesuaian standar sarpras pada setiap daerah</p>
+                    <div class="h-72 relative">
                         <canvas id="chartLokus"></canvas>
                     </div>
                 </div>
 
-                <!-- Diagram 2: Per Aspek (Horizontal Bar Chart) -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fa-solid fa-list-check text-purple-600 mr-2"></i> Diagram 2: Rekapitulasi per Aspek
+                <!-- Chart 2: Per Aspek -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                        <i class="fa-solid fa-list-check text-indigo-600 mr-2"></i> Diagram Statistik Per Aspek Penilaian
                     </h3>
-                    <div class="relative flex-grow min-h-[260px]">
+                    <p class="text-xs text-slate-400 mb-4">Perbandingan kesiapan 5 aspek pelayanan ramah kelompok rentan</p>
+                    <div class="h-72 relative">
                         <canvas id="chartAspek"></canvas>
                     </div>
                 </div>
 
-                <!-- Diagram 3: Per Instansi (Stacked Bar Chart) -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fa-solid fa-building text-emerald-600 mr-2"></i> Diagram 3: Rekapitulasi per Instansi
+                <!-- Chart 3: Per Instansi -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                        <i class="fa-solid fa-building-columns text-emerald-600 mr-2"></i> Diagram Statistik Per Instansi / Unit Layanan
                     </h3>
-                    <div class="relative flex-grow min-h-[260px]">
+                    <p class="text-xs text-slate-400 mb-4">Capaian pemenuhan standar pada tiap unit pelayanan</p>
+                    <div class="h-72 relative">
                         <canvas id="chartInstansi"></canvas>
                     </div>
                 </div>
 
-                <!-- Diagram 4: Per Indikator (Horizontal Stacked Bar Chart) -->
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fa-solid fa-wheelchair text-amber-600 mr-2"></i> Diagram 4: Rekapitulasi per Indikator Sarpras & Layanan
+                <!-- Chart 4: Per Indikator -->
+                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm">
+                    <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                        <i class="fa-solid fa-wheelchair text-amber-600 mr-2"></i> Diagram Statistik Per Indikator Sarpras
                     </h3>
-                    <div class="relative flex-grow min-h-[260px]">
+                    <p class="text-xs text-slate-400 mb-4">Detail ketersediaan indikator fisik & non-fisik</p>
+                    <div class="h-72 relative">
                         <canvas id="chartIndikator"></canvas>
                     </div>
                 </div>
             </div>
-
-            <!-- Detailed Stats Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-                <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center">
-                    <i class="fa-solid fa-table-list text-slate-600 mr-2"></i> Detail Ringkasan Data Terfilter
-                </h3>
-                <div class="overflow-x-auto custom-scrollbar border border-slate-100 rounded-xl">
-                    <table class="w-full text-left text-xs sm:text-sm">
-                        <thead class="bg-slate-100 text-slate-700 uppercase font-bold text-[11px]">
-                            <tr>
-                                <th class="p-3">Lokus</th>
-                                <th class="p-3">Instansi</th>
-                                <th class="p-3">Aspek</th>
-                                <th class="p-3">Indikator</th>
-                                <th class="p-3">Kondisi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="statsTableBody" class="divide-y divide-slate-100">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
-
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
-            E-Instrumen Pengawasan Sarpras Pelayanan Publik Ramah Disabilitas & Kelompok Rentan &copy; 2026 - Ombudsman RI & HWDI NTT
-        </div>
-    </footer>
-
-    <!-- Modal Pratinjau Foto -->
-    <div id="imageModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="closeModal()">
-        <div class="relative max-w-2xl w-full bg-white rounded-2xl p-2 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
-            <button onclick="closeModal()" class="absolute top-3 right-3 bg-black/60 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-black transition-all">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <img id="modalImage" class="w-full max-h-[80vh] object-contain rounded-xl" src="" alt="Detail Foto">
+    <!-- Photo Preview Modal -->
+    <div id="photoModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print" onclick="closePhotoModal()">
+        <div class="bg-white rounded-2xl max-w-2xl w-full overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="font-bold text-sm text-slate-800" id="modalPhotoTitle">Dokumentasi Lapangan</h3>
+                <button onclick="closePhotoModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-4 bg-slate-950 flex items-center justify-center">
+                <img id="modalPhotoImg" src="" alt="Bukti Foto" class="max-h-[70vh] object-contain rounded-lg">
+            </div>
+            <div class="px-5 py-3 bg-slate-50 text-xs text-slate-600" id="modalPhotoCaption"></div>
         </div>
     </div>
 
-    <!-- MODAL CETAK LAPORAN PDF (CUSTOMIZABLE) -->
-    <div id="printModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="closePrintModal()">
-        <div class="relative max-w-2xl w-full bg-white rounded-2xl p-6 overflow-hidden shadow-2xl max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
-            <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
-                <h3 class="text-lg font-bold text-slate-800 flex items-center">
-                    <i class="fa-solid fa-file-pdf text-red-600 mr-2.5 text-xl"></i> Pengaturan Cetak Laporan PDF
-                </h3>
-                <button onclick="closePrintModal()" class="text-slate-400 hover:text-slate-600 text-lg">
-                    <i class="fa-solid fa-xmark"></i>
+    <!-- Custom Print PDF Configuration Modal -->
+    <div id="printModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden animate-fade-in">
+            <div class="px-6 py-4 bg-slate-800 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-file-pdf text-amber-400 text-lg"></i>
+                    <h3 class="font-bold text-base">Pengaturan Cetak Laporan PDF</h3>
+                </div>
+                <button onclick="closePrintModal()" class="text-slate-300 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
                 </button>
             </div>
-
-            <div class="overflow-y-auto custom-scrollbar space-y-4 pr-1 text-xs sm:text-sm">
-                <!-- Judul Laporan & Sub-Judul -->
+            
+            <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-xs">
                 <div>
-                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Judul Dokumen Laporan</label>
-                    <input type="text" id="pdfTitle" value="LAPORAN PENGAWASAN SARANA PRASARANA PELAYANAN PUBLIK RAMAH DISABILITAS & KELOMPOK RENTAN" class="w-full text-xs border border-slate-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Judul Kop Laporan</label>
+                    <input type="text" id="printTitle" value="LAPORAN HASIL PEMANTAUAN SARPRAS RAMAH KELOMPOK RENTAN & DISABILITAS" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
 
-                <!-- Filter Data Laporan -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Lokus Wilayah</label>
-                        <select id="pdfFilterLokus" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
-                            <option value="Semua">Semua Lokus (Prov. NTT)</option>
-                            <option value="Provinsi NTT">Pemerintah Provinsi NTT</option>
-                            <option value="Kota Kupang">Kota Kupang</option>
-                            <option value="Kab. Alor">Kabupaten Alor</option>
-                            <option value="Kab. Belu">Kabupaten Belu</option>
-                            <option value="Kab. Ende">Kabupaten Ende</option>
-                            <option value="Kab. Flores Timur">Kabupaten Flores Timur</option>
-                            <option value="Kab. Kupang">Kabupaten Kupang</option>
-                            <option value="Kab. Lembata">Kabupaten Lembata</option>
-                            <option value="Kab. Malaka">Kabupaten Malaka</option>
-                            <option value="Kab. Manggarai">Kabupaten Manggarai</option>
-                            <option value="Kab. Manggarai Barat">Kabupaten Manggarai Barat</option>
-                            <option value="Kab. Manggarai Timur">Kabupaten Manggarai Timur</option>
-                            <option value="Kab. Nagekeo">Kabupaten Nagekeo</option>
-                            <option value="Kab. Ngada">Kabupaten Ngada</option>
-                            <option value="Kab. Rote Ndao">Kabupaten Rote Ndao</option>
-                            <option value="Kab. Sabu Raijua">Kabupaten Sabu Raijua</option>
-                            <option value="Kab. Sikka">Kabupaten Sikka</option>
-                            <option value="Kab. Sumba Barat">Kabupaten Sumba Barat</option>
-                            <option value="Kab. Sumba Barat Daya">Kabupaten Sumba Barat Daya</option>
-                            <option value="Kab. Sumba Tengah">Kabupaten Sumba Tengah</option>
-                            <option value="Kab. Sumba Timur">Kabupaten Sumba Timur</option>
-                            <option value="Kab. Timor Tengah Selatan">Kabupaten Timor Tengah Selatan</option>
-                            <option value="Kab. Timor Tengah Utara">Kabupaten Timor Tengah Utara</option>
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Filter Lokus Cetak</label>
+                        <select id="printFilterLokus" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-slate-50">
+                            <option value="ALL">Semua Lokus Wilayah</option>
                         </select>
                     </div>
-
                     <div>
-                        <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Aspek</label>
-                        <select id="pdfFilterAspek" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
-                            <option value="Semua">Semua Aspek</option>
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Filter Aspek Cetak</label>
+                        <select id="printFilterAspek" class="w-full px-3 py-2 border border-slate-300 rounded-xl bg-slate-50">
+                            <option value="ALL">Semua Aspek</option>
+                            <option value="Kebijakan dan Kepemimpinan">Kebijakan & Kepemimpinan</option>
                             <option value="Aksesibilitas Fisik">Aksesibilitas Fisik</option>
-                            <option value="Kebijakan & Kepemimpinan">Kebijakan & Kepemimpinan</option>
-                            <option value="Aksesibilitas Informasi & Komunikasi">Informasi & Komunikasi</option>
+                            <option value="Aksesibilitas Informasi dan Komunikasi">Informasi & Komunikasi</option>
                             <option value="Akomodasi yang Layak">Akomodasi yang Layak</option>
                             <option value="Sumber Daya Manusia">Sumber Daya Manusia</option>
                         </select>
                     </div>
                 </div>
 
-                <!-- Opsi Elemen yang Ditampilkan -->
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-600 mb-2">Elemen Konten yang Ditampilkan</label>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <label class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200 cursor-pointer">
-                            <input type="checkbox" id="pdfOptSummary" checked class="rounded text-blue-600">
-                            <span>Ringkasan Statistik</span>
-                        </label>
-                        <label class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200 cursor-pointer">
-                            <input type="checkbox" id="pdfOptNotes" checked class="rounded text-blue-600">
-                            <span>Catatan & Detail Temuan</span>
-                        </label>
-                        <label class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200 cursor-pointer">
-                            <input type="checkbox" id="pdfOptPhotos" checked class="rounded text-blue-600">
-                            <span>Dokumentasi Foto Objek</span>
-                        </label>
-                        <label class="flex items-center space-x-2 bg-slate-50 p-2 rounded-lg border border-slate-200 cursor-pointer">
-                            <input type="checkbox" id="pdfOptSignatures" checked class="rounded text-blue-600">
-                            <span>Kolom Pengesahan Tanda Tangan</span>
-                        </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Jabatan Penandatangan</label>
+                        <input type="text" id="printJabatan" value="Koordinator Tim Pemantau Pelayanan Publik NTT" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 uppercase mb-1">Nama Penandatangan</label>
+                        <input type="text" id="printPenandatangan" placeholder="Nama lengkap & gelar" class="w-full px-3 py-2 border border-slate-300 rounded-xl">
                     </div>
                 </div>
 
-                <!-- Informasi Penandatangan Laporan -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Kota & Tanggal Laporan</label>
-                        <input type="text" id="pdfSignLocation" value="Kupang, 19 November 2026" class="w-full text-xs border border-slate-300 rounded-lg p-2">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold uppercase text-slate-600 mb-1">Nama Penanggung Jawab / Tim</label>
-                        <input type="text" id="pdfSignerName" value="Tim Pengawas Ombudsman & HWDI NTT" class="w-full text-xs border border-slate-300 rounded-lg p-2">
-                    </div>
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                    <p class="font-bold text-slate-700 uppercase">Komponen yang Ditampilkan:</p>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="chkPrintSummary" checked class="rounded text-blue-600">
+                        <span>Sertakan Ringkasan Statistik Angka</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="chkPrintFoto" checked class="rounded text-blue-600">
+                        <span>Sertakan Kolom Foto Dokumentasi</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="chkPrintSignature" checked class="rounded text-blue-600">
+                        <span>Sertakan Kolom Pengesahan / Tanda Tangan</span>
+                    </label>
                 </div>
             </div>
 
-            <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-end space-x-3">
-                <button onclick="closePrintModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs sm:text-sm">
-                    Batal
-                </button>
-                <button onclick="generatePDFReport()" class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl text-xs sm:text-sm shadow flex items-center">
-                    <i class="fa-solid fa-print mr-2"></i> Cetak / Simpan PDF
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+                <button onclick="closePrintModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200">Batal</button>
+                <button onclick="executePrintPDF()" class="px-5 py-2 rounded-xl text-xs font-bold bg-blue-700 hover:bg-blue-800 text-white shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- AREA CETAK RAHASIA (PRINT VIEW HTML) -->
-    <div id="printContainer" class="hidden print:block p-8 bg-white text-slate-900 font-sans">
-        <!-- Printable header, content, and footer dynamically created -->
-    </div>
+    <!-- Hidden Print Layout Area -->
+    <div id="printArea" class="hidden"></div>
 
-    <!-- MODAL NOTIFIKASI PESAN (PENGGANTI ALERT) -->
-    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 hidden transform transition-all duration-300 translate-y-4 opacity-0">
-        <div id="toastBox" class="flex items-center p-4 rounded-xl shadow-xl border text-xs sm:text-sm font-medium max-w-sm bg-slate-900 text-white border-slate-700">
-            <i id="toastIcon" class="fa-solid fa-circle-info mr-3 text-lg text-blue-400"></i>
-            <span id="toastMessage">Pesan notifikasi</span>
-        </div>
-    </div>
-
-    <!-- STYLES UNTUK PENCETAKAN CETAK/PRINT PDF -->
-    <style>
-        @media print {
-            body > *:not(#printContainer) {
-                display: none !important;
-            }
-            #printContainer {
-                display: block !important;
-                width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            .page-break {
-                page-break-before: always;
-            }
-        }
-    </style>
-
-    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Pemetaan Indikator ke Aspek dan Ketentuan Teknis Resmi
+        // =========================================================================
+        // KONFIGURASI HOOK GOOGLE APPS SCRIPT
+        // Tempelkan URL Web App (/exec) dari Google Apps Script Anda di bawah ini
+        // =========================================================================
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-Fmjmh3ZxLGF4eP6u55uqIcV8lY-KdEjFLejy2klnAHctSObIlRIMTLTkW65L12AirQ/exec";
+
+        // Referensi Metadata Aspek, Indikator, Keterangan & Ketentuan
         const indikatorDataMap = {
             "Jalur Pemandu (Guiding Block)": {
                 aspek: "Aksesibilitas Fisik",
-                ketentuan: "Ubin pengarah (garis) dan ubin peringatan (bulat/titik) dari gerbang hingga loket dan toilet. Material kuat, tidak licin, dan warna kontras (kuning/jingga) bagi netra & low vision."
+                kategori: "Fisik",
+                keterangan: "Ubin pemandu untuk membantu navigasi penyandang disabilitas netra dan low vision.",
+                ketentuan: "Ubin pengarah (garis) & peringatan (bulat), material kuat/tidak licin, warna kontras (kuning/jingga)."
             },
-            "Area Parkir Khusus": {
+            "Area Parkir Khusus Disabilitas": {
                 aspek: "Aksesibilitas Fisik",
-                ketentuan: "Jarak maksimal 60 meter dari pintu masuk utama. Lebar minimal 370 cm (parkir tunggal) atau 620 cm (parkir ganda), simbol kursi roda kontras, permukaan datar, dan terhubung ke ramp."
+                kategori: "Fisik",
+                keterangan: "Tempat parkir khusus bagi disabilitas, lansia, ibu hamil, dan orang tua membawa bayi.",
+                ketentuan: "Jarak maksimal 60m dari pintu masuk, lebar 370cm (tunggal) / 620cm (ganda), bersimbol kontras."
             },
-            "Jalur Landai (Ramp)": {
+            "Jalur Landai (Ramp) & Pegangan Rambat": {
                 aspek: "Aksesibilitas Fisik",
-                ketentuan: "Kemiringan maksimal 1:12 (luar ruangan) atau 1:10 (dalam ruangan), lebar minimal 1,2m, panjang maksimal 9m, tidak licin, serta memiliki pegangan tangan (handrail) ganda di kedua sisi (tinggi 65-80 cm / 85-95 cm)."
+                kategori: "Fisik",
+                keterangan: "Bidang miring untuk akses pengguna kursi roda dan lansia antar ketinggian lantai.",
+                ketentuan: "Kemiringan maks 1:12 (6-7 derajat), lebar min 1,2m, permukaan tidak licin, handrail 2 sisi (tinggi 85-95cm)."
             },
             "Koridor & Jalur Evakuasi": {
                 aspek: "Aksesibilitas Fisik",
-                ketentuan: "Lebar koridor minimal 1,8 meter, bebas hambatan/undakan, permukaan tidak licin, dilengkapi rambu evakuasi darurat serta penanda huruf braille atau huruf besar/timbul untuk tunanetra."
-            },
-            "Area Prioritas & Kursi Tunggu": {
-                aspek: "Aksesibilitas Fisik",
-                ketentuan: "Luas area minimal 4 m² (lebar min. 1,5m), tersedia ruang kosong khusus pengguna kursi roda, kursi prioritas dengan sandaran tangan, penerangan cukup, dan rambu yang terlihat dari jarak 10m."
-            },
-            "Toilet Khusus Disabilitas": {
-                aspek: "Aksesibilitas Fisik",
-                ketentuan: "Luas min. 4 m² dengan ruang gerak putar kursi roda diameter 1,5m. Pintu geser/membuka keluar lebar min. 90 cm, kloset duduk dengan pegangan rambat (grab bar), wastafel rendah, dan tombol darurat (panic button)."
-            },
-            "Loket Pelayanan Khusus/Prioritas": {
-                aspek: "Aksesibilitas Fisik",
-                ketentuan: "Tinggi meja khusus pengguna kursi roda 70-80 cm dengan ruang bebas kaki di bawah meja min. 75 cm, ruang manuver kursi roda cukup, permukaan tidak memantulkan cahaya, serta dilengkapi layar & pengeras suara antrean."
-            },
-            "Ruang Laktasi / Menyusui": {
-                aspek: "Aksesibilitas Fisik",
-                ketentuan: "Luas min. 4 m² (lebar min. 1,5m), tertutup dan dapat dikunci dari dalam, bersih/higienis, dilengkapi kursi nyaman, meja, wastafel cuci tangan, lemari es penyimpanan ASI, dan ventilasi baik."
-            },
-            "Area Ramah Anak / Playroom": {
-                aspek: "Aksesibilitas Fisik",
-                ketentuan: "Luas min. 9 m² (lebar min. 3m), permukaan lantai rata/empuk/tidak licin, permainan aman dan edukatif sesuai usia anak, bebas sudut tajam, serta berada dalam jangkauan pengawasan orang dewasa."
+                kategori: "Fisik",
+                keterangan: "Akses penghubung antar ruang dan jalur penyelamatan darurat yang aman bagi seluruh kelompok rentan.",
+                ketentuan: "Lebar koridor minimal 1,8 meter, bebas hambatan, dilengkapi penanda braille atau huruf besar/timbul untuk tunanetra."
             },
             "Lift Disabilitas": {
                 aspek: "Aksesibilitas Fisik",
-                ketentuan: "Lebar pintu min. 1m, lebar kabin min. 1,1m x 1,4m. Tombol kontrol mudah dijangkau kursi roda dengan huruf braille, dilengkapi suara penanda lantai (audio announcement), pegangan rambat, dan alarm darurat."
+                kategori: "Fisik",
+                keterangan: "Sarana transportasi vertikal pada gedung pelayanan berlantai lebih dari satu.",
+                ketentuan: "Tombol lantai dengan huruf braille, dilengkapi suara penanda lantai (audio announcement), dan pegangan rambat (handrail)."
             },
-            "Alat Bantu Mobilitas": {
+            "Toilet Khusus Disabilitas": {
                 aspek: "Aksesibilitas Fisik",
-                ketentuan: "Tersedia minimal 2 unit alat bantu mobilitas/komunikasi yang terawat dan siap pakai (kursi roda, tongkat/kruk, walker, alat bantu dengar, atau perangkat lunak pembaca layar/transkripsi)."
+                kategori: "Fisik",
+                keterangan: "Kamar kecil yang dirancang khusus untuk kenyamanan pengguna kursi roda, kruk, dan lansia.",
+                ketentuan: "Luas min 4m2 (lebar min 1,5m), pintu geser min 90cm, handrail di sisi kloset, dilengkapi tombol darurat (panic button)."
             },
-            "Ruang Tenang (Sensory Room)": {
+            "Loket / Meja Layanan Prioritas": {
                 aspek: "Aksesibilitas Fisik",
-                ketentuan: "Ruangan kedap suara/jauh dari kebisingan untuk disabilitas psikososial/mental/autisme. Warna dinding lembut, pencahayaan dapat diatur, furnitur nyaman, privasi terjaga, dan akses pintu mudah dibuka."
+                kategori: "Fisik",
+                keterangan: "Loket pelayanan khusus untuk memberikan percepatan dan kemudahan interaksi kelompok rentan.",
+                ketentuan: "Tinggi meja 70-80cm untuk pengguna kursi roda, ruang manuver cukup, layar antrean & audio jelas."
+            },
+            "Area / Kursi Tunggu Prioritas": {
+                aspek: "Aksesibilitas Fisik",
+                kategori: "Fisik",
+                keterangan: "Zona tunggu khusus yang aman dan nyaman bagi penyandang disabilitas, lansia, dan ibu hamil.",
+                ketentuan: "Luas min 4m2, kursi nyaman dengan sandaran tangan, penanda/simbol jelas terlihat dari jarak min 10m."
+            },
+            "Ruang Laktasi / Menyusui": {
+                aspek: "Aksesibilitas Fisik",
+                kategori: "Fisik",
+                keterangan: "Ruang privat dan higienis bagi ibu menyusui untuk memberikan ASI eksklusif.",
+                ketentuan: "Luas min 4m2, pintu dapat dikunci dari dalam, tersedia kursi nyaman, meja, wastafel, dan ventilasi baik."
+            },
+            "Area Bermain Ramah Anak": {
+                aspek: "Aksesibilitas Fisik",
+                kategori: "Fisik",
+                keterangan: "Area aman dan nyaman bagi anak-anak yang mendampingi pengguna layanan.",
+                ketentuan: "Luas min 9m2 (lebar min 3m), lantai rata tidak licin, mainan aman sesuai usia anak, jauh dari bahaya."
+            },
+            "Alat Bantu Mobilitas & Komunikasi": {
+                aspek: "Aksesibilitas Fisik",
+                kategori: "Fisik",
+                keterangan: "Perangkat penunjang bagi pengguna layanan dengan hambatan gerak maupun sensorik.",
+                ketentuan: "Tersedia min 2 unit kursi roda/kruk/walker serta alat bantu komunikasi (hearing aid, papan komunikasi, screen reader)."
+            },
+            "Ruang Tenang (Disabilitas Psikososial)": {
+                aspek: "Aksesibilitas Fisik",
+                kategori: "Fisik",
+                keterangan: "Ruang kondusif untuk meredakan kecemasan/stimulasi berlebih bagi disabilitas mental/psikososial.",
+                ketentuan: "Bebas kebisingan, warna dinding menenangkan, pencahayaan lembut, furnitur nyaman, dan akses keluar mudah."
             },
             "SOP Layanan Prioritas": {
-                aspek: "Kebijakan & Kepemimpinan",
-                ketentuan: "Tersedia Standar Operasional Prosedur (SOP) pelayanan ramah kelompok rentan, SOP evakuasi darurat khusus disabilitas, serta mekanisme antrean dan pendampingan prioritas yang disahkan pimpinan."
+                aspek: "Kebijakan dan Kepemimpinan",
+                kategori: "Non-Fisik",
+                keterangan: "Standar Operasional Prosedur tertulis yang menjamin perlakuan khusus dan percepatan layanan kelompok rentan.",
+                ketentuan: "Tersedia dokumen SOP pelayanan ramah kelompok rentan, SOP evakuasi darurat kelompok rentan, dan standar aksesibilitas."
             },
             "Informasi Layanan Ramah Disabilitas": {
-                aspek: "Aksesibilitas Informasi & Komunikasi",
-                ketentuan: "Informasi prosedur, tarif, dan alur layanan tersedia dalam berbagai format aksesibel: huruf Braille/huruf besar kontras tinggi (netra/low vision), juru bahasa isyarat/teks tertulis (rungu), dan metode Easy Read (intelektual)."
+                aspek: "Aksesibilitas Informasi dan Komunikasi",
+                kategori: "Non-Fisik",
+                keterangan: "Penyajian informasi prosedur, syarat, dan biaya layanan dalam berbagai format yang dapat diakses semua ragam disabilitas.",
+                ketentuan: "Tersedia format huruf besar/kontras tinggi, Braille, audio/suara jelas, bahasa isyarat/subtitle video, serta metode Easy Read."
             },
-            "Layanan Pengaduan Aksesibel": {
-                aspek: "Aksesibilitas Informasi & Komunikasi",
-                ketentuan: "Kanal pengaduan tersedia melalui berbagai saluran (tatap muka, pesan teks/WhatsApp, panggilan video untuk pembaca bibir, email, web ramah pembaca layar) dengan bahasa sederhana dan tanpa hambatan."
+            "Layanan Pengaduan yang Aksesibel": {
+                aspek: "Aksesibilitas Informasi dan Komunikasi",
+                kategori: "Non-Fisik",
+                keterangan: "Kanal penyampaian keluhan dan aspirasi yang mudah digunakan tanpa hambatan oleh kelompok rentan.",
+                ketentuan: "Multi-kanal (tatap muka, pesan teks/WA, panggilan video bahasa isyarat, web/aplikasi aksesibel) dengan bahasa sederhana."
             },
             "Ketersediaan Petugas Pendamping": {
                 aspek: "Akomodasi yang Layak",
-                ketentuan: "Tersedia petugas khusus yang siaga membantu navigasi, komunikasi, maupun pengisian formulir bagi kelompok rentan tanpa dipungut biaya, serta menjunjung tinggi privasi dan martabat pengguna layanan."
+                kategori: "Non-Fisik",
+                keterangan: "Dukungan staf khusus yang membantu navigasi, pengisian formulir, maupun komunikasi selama proses layanan.",
+                ketentuan: "Tersedia petugas pendamping siaga di area layanan, juru bahasa isyarat (atau akses JBI daring), tanpa dipungut biaya."
             },
             "Pelatihan Petugas Front Office": {
                 aspek: "Sumber Daya Manusia",
-                ketentuan: "Seluruh petugas layanan (front office, satpam, petugas antrean) telah mengikuti pelatihan sensitivitas disabilitas, etika berinteraksi tanpa diskriminasi, serta cara mengoperasikan alat bantu."
+                kategori: "Non-Fisik",
+                keterangan: "Peningkatan kapasitas dan sensitivitas petugas garda terdepan dalam berinteraksi dengan kelompok rentan.",
+                ketentuan: "Petugas front office telah mengikuti pelatihan sensitivitas disabilitas, etika pelayanan inklusif, dan komunikasi dasar."
             }
         };
 
-        // Storage Database Temporary & URL Hook Google Apps Script
-        // GANTI URL DI BAWAH INI DENGAN URL WEB APP GOOGLE APPS SCRIPT ANDA (/exec)
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-Fmjmh3ZxLGF4eP6u55uqIcV8lY-KdEjFLejy2klnAHctSObIlRIMTLTkW65L12AirQ/exec"; 
-
         let database = [];
         let currentPhotoBase64 = "";
+        const LOCAL_STORAGE_KEY = "ntt_sarpras_audit_data_v1";
 
-        // Variable Objek Chart.js
+        // Chart Instances
         let chartLokusObj = null;
         let chartAspekObj = null;
         let chartInstansiObj = null;
         let chartIndikatorObj = null;
 
-        // Fungsi Notifikasi Toast (Menggantikan alert bawaan browser)
-        function showNotification(message, type = 'success') {
-            const toast = document.getElementById('toastNotification');
-            const box = document.getElementById('toastBox');
-            const icon = document.getElementById('toastIcon');
-            const msg = document.getElementById('toastMessage');
-
-            msg.innerText = message;
-            
-            if (type === 'success') {
-                box.className = "flex items-center p-4 rounded-xl shadow-xl border text-xs sm:text-sm font-medium max-w-sm bg-emerald-900 text-white border-emerald-700";
-                icon.className = "fa-solid fa-circle-check mr-3 text-lg text-emerald-400";
-            } else if (type === 'warning') {
-                box.className = "flex items-center p-4 rounded-xl shadow-xl border text-xs sm:text-sm font-medium max-w-sm bg-amber-900 text-white border-amber-700";
-                icon.className = "fa-solid fa-triangle-exclamation mr-3 text-lg text-amber-400";
-            } else {
-                box.className = "flex items-center p-4 rounded-xl shadow-xl border text-xs sm:text-sm font-medium max-w-sm bg-red-900 text-white border-red-700";
-                icon.className = "fa-solid fa-circle-xmark mr-3 text-lg text-red-400";
+        // Simpan & Muat Cadangan Lokal (agar data tetap aman di Preview / Offline)
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(database));
+            } catch (e) {
+                console.warn("Penyimpanan lokal penuh atau dibatasi:", e);
             }
-
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            }, 10);
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-4', 'opacity-0');
-                setTimeout(() => toast.classList.add('hidden'), 300);
-            }, 4000);
         }
 
-        // Navigasi Tab
-        function switchTab(tab) {
-            const formSec = document.getElementById('sectionForm');
-            const statsSec = document.getElementById('sectionStats');
-            const formBtn = document.getElementById('tabFormBtn');
-            const statsBtn = document.getElementById('tabStatsBtn');
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) {
+                        database = parsed;
+                    }
+                }
+            } catch (e) {
+                console.warn("Gagal membaca penyimpanan lokal:", e);
+            }
+        }
 
-            if(tab === 'form') {
-                formSec.classList.remove('hidden');
-                statsSec.classList.add('hidden');
-                formBtn.className = "flex items-center px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-white text-blue-900 shadow-md";
-                statsBtn.className = "flex items-center px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-blue-100 hover:text-white hover:bg-white/10";
-            } else {
-                formSec.classList.add('hidden');
-                statsSec.classList.remove('hidden');
-                statsBtn.className = "flex items-center px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 bg-white text-blue-900 shadow-md";
-                formBtn.className = "flex items-center px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-blue-100 hover:text-white hover:bg-white/10";
+        // =========================================================================
+        // SINKRONISASI DUA ARAH DENGAN GOOGLE SHEETS (doGet & doPost)
+        // =========================================================================
+        function formatDriveImageUrl(url, size = "w1000") {
+            if (!url || url === "Tidak Ada Foto") return "";
+            if (url.startsWith("data:image")) return url;
+            const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+            if (match && match[1]) {
+                return `https://drive.google.com/thumbnail?id=${match[1]}&sz=${size}`;
+            }
+            return url;
+        }
+
+        async function fetchDataFromSheets(showToast = false) {
+            // Muat data lokal terlebih dahulu agar langsung tampil
+            if (database.length === 0) {
+                loadFromLocalStorage();
+                renderDatabaseTable();
+            }
+
+            if (!GOOGLE_SCRIPT_URL || !GOOGLE_SCRIPT_URL.startsWith("https://script.google.com/")) {
+                return;
+            }
+
+            // Hindari error CORS fetch otomatis jika dibuka melalui blob preview sandbox
+            const isPreviewSandbox = window.location.protocol === "blob:";
+            if (isPreviewSandbox && !showToast) {
+                return;
+            }
+
+            const tbody = document.getElementById('databaseBody');
+            const syncBtn = document.getElementById('syncBtn');
+            
+            if (syncBtn) {
+                syncBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Memuat...';
+                syncBtn.disabled = true;
+            }
+
+            if (database.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-slate-400">
+                            <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 block text-blue-500"></i>
+                            Menarik data dari Database...
+                        </td>
+                    </tr>`;
+            }
+
+            try {
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
                 
-                populateFilterOptions();
-                updateStats();
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.status === "success" && Array.isArray(result.data)) {
+                    database = result.data.reverse().map(row => ({
+                        id: row.rowIndex,
+                        rowIndex: row.rowIndex,
+                        timestamp: row.timestamp || "-",
+                        lokus: row.lokus || "-",
+                        namaAsesor: row.namaAsesor || "-",
+                        instansi: row.instansi || "-",
+                        aspek: row.aspek || "-",
+                        indikator: row.indikator || "-",
+                        kondisi: row.kondisi || "-",
+                        catatan: row.catatan || "-",
+                        foto: formatDriveImageUrl(row.foto)
+                    }));
+
+                    saveToLocalStorage();
+                    renderDatabaseTable();
+                    if (!document.getElementById('sectionStats').classList.contains('hidden')) {
+                        populateFilterOptions();
+                        updateStats();
+                    }
+                    if (showToast) {
+                        showNotification(`Berhasil memuat ${database.length} data dari Database.`, "success");
+                    }
+                } else {
+                    throw new Error(result.message || "Format respons tidak sesuai");
+                }
+            } catch (error) {
+                renderDatabaseTable();
+                if (showToast) {
+                    if (isPreviewSandbox) {
+                        showNotification("Mode Pratinjau (Sandbox) membatasi koneksi langsung ke Google Sheets. Fitur sinkronisasi penuh akan aktif setelah di-deploy di GitHub Pages.", "warning");
+                    } else {
+                        showNotification("Tidak dapat terhubung ke Database (Mode Offline/Lokal aktif).", "warning");
+                    }
+                }
+            } finally {
+                if (syncBtn) {
+                    syncBtn.innerHTML = '<i class="fa-solid fa-rotate mr-1.5"></i> Sinkronkan';
+                    syncBtn.disabled = false;
+                }
             }
         }
 
-        // Update Panduan Hint Indikator saat Pilihan Berubah
-        function updateIndikatorHint() {
-            const indikator = document.getElementById('indikator').value;
-            const hintBox = document.getElementById('indikatorHint');
-            
-            if (indikatorDataMap[indikator]) {
-                const data = indikatorDataMap[indikator];
-                hintBox.innerHTML = `
-                    <div class="font-bold text-blue-950 flex items-center">
-                        <i class="fa-solid fa-circle-info text-blue-600 mr-1.5"></i> Aspek: ${data.aspek}
-                    </div>
-                    <p class="text-slate-700 leading-relaxed">${data.ketentuan}</p>
-                `;
-                hintBox.classList.remove('hidden');
+        // =========================================================================
+        // INTERAKSI FORM & INPUT
+        // =========================================================================
+        function updateIndikatorInfo() {
+            const val = document.getElementById('indikator').value;
+            const box = document.getElementById('indikatorHintBox');
+            if (val && indikatorDataMap[val]) {
+                const info = indikatorDataMap[val];
+                document.getElementById('hintAspekBadge').textContent = "Aspek: " + info.aspek;
+                const katBadge = document.getElementById('hintKategoriBadge');
+                katBadge.textContent = info.kategori;
+                katBadge.className = info.kategori === "Fisik" 
+                    ? "text-[11px] font-semibold bg-blue-600 text-white px-2 py-0.5 rounded"
+                    : "text-[11px] font-semibold bg-indigo-600 text-white px-2 py-0.5 rounded";
+                document.getElementById('hintKeterangan').textContent = info.keterangan;
+                document.getElementById('hintKetentuan').textContent = info.ketentuan;
+                box.classList.remove('hidden');
             } else {
-                hintBox.classList.add('hidden');
+                box.classList.add('hidden');
             }
         }
 
-        // Handle Perubahan Radio Kondisi (Jika Tidak Ada, Foto menjadi Opsional)
-        function handleKondisiChange(kondisi) {
-            const label = document.getElementById('fotoRequiredLabel');
-            if (kondisi === 'Tidak Ada') {
-                label.innerText = "(Opsional)";
-                label.className = "text-slate-400 font-normal ml-1";
+        function handleKondisiChange(radio) {
+            const labels = ['lblSesuai', 'lblTidakSesuai', 'lblTidakAda'];
+            labels.forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('border-emerald-500', 'bg-emerald-50', 'border-amber-500', 'bg-amber-50', 'border-rose-500', 'bg-rose-50');
+                el.classList.add('border-slate-200');
+            });
+
+            const parent = radio.parentElement;
+            parent.classList.remove('border-slate-200');
+            if (radio.value === 'Sesuai Standar') {
+                parent.classList.add('border-emerald-500', 'bg-emerald-50');
+            } else if (radio.value === 'Tidak Sesuai Standar') {
+                parent.classList.add('border-amber-500', 'bg-amber-50');
             } else {
-                label.innerText = "*";
-                label.className = "text-red-500 ml-0.5";
+                parent.classList.add('border-rose-500', 'bg-rose-50');
             }
         }
 
-        // Handle Upload / Pengambilan Foto
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                currentPhotoBase64 = e.target.result;
-                document.getElementById('imagePreview').src = currentPhotoBase64;
-                document.getElementById('previewContainer').classList.remove('hidden');
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 900;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.72);
+                    document.getElementById('imagePreview').src = currentPhotoBase64;
+                    document.getElementById('uploadPlaceholder').classList.add('hidden');
+                    document.getElementById('previewContainer').classList.remove('hidden');
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        // Form Submission dengan Integrasi Google Sheets API
-        async function handleFormSubmit(e) {
-            e.preventDefault();
+        function clearPhoto() {
+            currentPhotoBase64 = "";
+            document.getElementById('fotoInput').value = "";
+            document.getElementById('imagePreview').src = "";
+            document.getElementById('previewContainer').classList.add('hidden');
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+        }
+
+        function resetFormFields() {
+            document.getElementById('indikator').value = "";
+            document.getElementById('indikatorHintBox').classList.add('hidden');
+            document.getElementById('catatan').value = "";
+            document.querySelectorAll('input[name="kondisi"]').forEach(r => r.checked = false);
+            ['lblSesuai', 'lblTidakSesuai', 'lblTidakAda'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('border-emerald-500', 'bg-emerald-50', 'border-amber-500', 'bg-amber-50', 'border-rose-500', 'bg-rose-50');
+                el.classList.add('border-slate-200');
+            });
+            clearPhoto();
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
 
             const lokus = document.getElementById('lokus').value;
-            const namaAsesor = document.getElementById('namaAsesor').value;
-            const instansi = document.getElementById('instansi').value;
+            const namaAsesor = document.getElementById('namaAsesor').value.trim();
+            const instansi = document.getElementById('instansi').value.trim();
             const indikator = document.getElementById('indikator').value;
-            const catatan = document.getElementById('catatan').value;
-
             const kondisiEl = document.querySelector('input[name="kondisi"]:checked');
-            if(!kondisiEl) {
-                showNotification("Harap pilih Kesesuaian Standar!", "warning");
-                return;
-            }
-            const kondisi = kondisiEl.value;
+            const catatan = document.getElementById('catatan').value.trim();
 
-            // Validasi foto
-            if (kondisi !== 'Tidak Ada' && !currentPhotoBase64) {
-                showNotification("Harap sertakan foto dokumentasi objek!", "warning");
+            if (!kondisiEl) {
+                showNotification("Silakan pilih status Kesesuaian Standar.", "warning");
                 return;
             }
 
             const aspek = indikatorDataMap[indikator] ? indikatorDataMap[indikator].aspek : "Lainnya";
+            const now = new Date();
+            const timestamp = now.toLocaleDateString('id-ID') + ' ' + now.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
 
             const item = {
                 id: Date.now(),
-                lokus,
-                namaAsesor,
-                instansi,
-                aspek,
-                indikator,
-                kondisi,
-                foto: currentPhotoBase64,
+                timestamp: timestamp,
+                lokus: lokus,
+                namaAsesor: namaAsesor,
+                instansi: instansi,
+                aspek: aspek,
+                indikator: indikator,
+                kondisi: kondisiEl.value,
                 catatan: catatan || "-",
-                timestamp: new Date().toLocaleString('id-ID')
+                foto: currentPhotoBase64 || ""
             };
 
             const submitBtn = document.getElementById('submitBtn');
             const originalBtnHTML = submitBtn.innerHTML;
 
-            // Jika URL Google Apps Script sudah disisipkan di kode, kirim langsung ke Google Sheets
+            // Simpan langsung ke tampilan & localStorage agar tidak hilang saat refresh
+            database.unshift(item);
+            saveToLocalStorage();
+            renderDatabaseTable();
+
             if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith("https://script.google.com/")) {
-                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Mengirim ke Database...';
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Mengirim ke Database...</span>';
                 submitBtn.disabled = true;
 
                 try {
@@ -842,98 +969,90 @@
                         method: 'POST',
                         mode: 'no-cors',
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Content-Type': 'text/plain;charset=utf-8',
                         },
                         body: JSON.stringify(item)
                     });
                     
-                    database.unshift(item);
-                    renderDatabaseTable();
                     resetFormFields();
-                    showNotification("Data & foto berhasil terkirim Database!", "success");
+                    showNotification("Data & foto berhasil disimpan dan dikirim ke Database!", "success");
+                    if (window.location.protocol !== "blob:") {
+                        setTimeout(() => fetchDataFromSheets(false), 1800);
+                    }
                 } catch (error) {
-                    showNotification("Gagal mengirim ke Database, tersimpan lokal: " + error.message, "error");
-                    database.unshift(item);
-                    renderDatabaseTable();
                     resetFormFields();
+                    showNotification("Tersimpan di perangkat lokal (akan tersinkronisasi saat online/GitHub Pages).", "warning");
                 } finally {
                     submitBtn.innerHTML = originalBtnHTML;
                     submitBtn.disabled = false;
                 }
             } else {
-                // Mode penyimpanan lokal jika GOOGLE_SCRIPT_URL belum diisi
-                database.unshift(item);
-                renderDatabaseTable();
                 resetFormFields();
-                showNotification("Tersimpan di tabel lokal (Isi URL di kode untuk simpan ke Database).", "warning");
+                showNotification("Data tersimpan di penyimpanan lokal aplikasi.", "success");
             }
         }
 
-        function resetFormFields() {
-            // Reset form sebagian (mempertahankan Lokus, Asesor, & Instansi untuk efisiensi di lapangan)
-            document.getElementById('indikator').value = "";
-            document.getElementById('catatan').value = "";
-            document.getElementById('fotoInput').value = "";
-            document.getElementById('previewContainer').classList.add('hidden');
-            document.getElementById('indikatorHint').classList.add('hidden');
-            currentPhotoBase64 = "";
-
-            const label = document.getElementById('fotoRequiredLabel');
-            label.innerText = "*";
-            label.className = "text-red-500 ml-0.5";
-
-            const checkedRadio = document.querySelector('input[name="kondisi"]:checked');
-            if(checkedRadio) checkedRadio.checked = false;
-        }
-
-        // Render Tabel Database Real-Time
+        // =========================================================================
+        // RENDER TABEL DATABASE & HAPUS DATA
+        // =========================================================================
         function renderDatabaseTable() {
             const tbody = document.getElementById('databaseBody');
-            document.getElementById('dataCount').innerText = `${database.length} Data`;
+            document.getElementById('dataCount').textContent = `${database.length} Data`;
 
-            if(database.length === 0) {
+            if (database.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" class="py-12 text-center text-slate-400">
                             <i class="fa-solid fa-folder-open text-3xl mb-2 block text-slate-300"></i>
-                            Belum ada data evaluasi yang dimasukkan.
+                            Belum ada data pemantauan. Silakan isi form di samping atau klik Sinkronkan.
                         </td>
                     </tr>`;
                 return;
             }
 
             tbody.innerHTML = database.map(item => {
-                let badgeColor = '';
-                if(item.kondisi === 'Sesuai') badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
-                else if(item.kondisi === 'Tidak Sesuai') badgeColor = 'bg-amber-100 text-amber-800 border-amber-200';
-                else badgeColor = 'bg-red-100 text-red-800 border-red-200';
+                let badgeClass = "bg-slate-100 text-slate-700";
+                let icon = "fa-circle-info";
+                if (item.kondisi === "Sesuai Standar") {
+                    badgeClass = "bg-emerald-50 text-emerald-700 border border-emerald-200";
+                    icon = "fa-circle-check";
+                } else if (item.kondisi === "Tidak Sesuai Standar") {
+                    badgeClass = "bg-amber-50 text-amber-700 border border-amber-200";
+                    icon = "fa-triangle-exclamation";
+                } else if (item.kondisi === "Tidak Tersedia") {
+                    badgeClass = "bg-rose-50 text-rose-700 border border-rose-200";
+                    icon = "fa-circle-xmark";
+                }
+
+                const photoBtn = item.foto 
+                    ? `<button onclick="openPhotoModal('${item.id}')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-all" title="Lihat Foto">
+                         <i class="fa-solid fa-image"></i>
+                       </button>`
+                    : `<span class="text-slate-300 text-[11px]">-</span>`;
 
                 return `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-3 border-b border-slate-100">
-                            <div class="font-bold text-slate-800">${item.lokus}</div>
-                            <div class="text-xs text-slate-500">${item.instansi}</div>
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3 px-3 align-top">
+                            <div class="font-bold text-slate-800">${item.instansi}</div>
+                            <div class="text-[11px] text-blue-700 font-medium">${item.lokus}</div>
+                            <div class="text-[10px] text-slate-400 mt-0.5"><i class="fa-regular fa-user mr-1"></i>${item.namaAsesor} • ${item.timestamp}</div>
                         </td>
-                        <td class="p-3 border-b border-slate-100">
-                            <div class="text-xs font-semibold text-purple-700">${item.aspek}</div>
-                            <div class="text-slate-800">${item.indikator}</div>
+                        <td class="py-3 px-3 align-top">
+                            <span class="inline-block text-[10px] font-semibold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded mb-1">${item.aspek}</span>
+                            <div class="font-semibold text-slate-700">${item.indikator}</div>
+                            ${item.catatan && item.catatan !== '-' ? `<div class="text-[11px] text-slate-500 mt-0.5 italic">"${item.catatan}"</div>` : ''}
                         </td>
-                        <td class="p-3 border-b border-slate-100">
-                            <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold border ${badgeColor}">
-                                ${item.kondisi}
+                        <td class="py-3 px-3 align-top whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-bold ${badgeClass}">
+                                <i class="fa-solid ${icon}"></i> ${item.kondisi}
                             </span>
                         </td>
-                        <td class="p-3 border-b border-slate-100 text-center">
-                            ${item.foto ? 
-                                `<button onclick="openModal('${item.foto}')" class="w-9 h-9 rounded-lg overflow-hidden border border-slate-200 inline-block hover:opacity-80 transition-opacity">
-                                    <img src="${item.foto}" class="w-full h-full object-cover" alt="Thumb">
-                                 </button>` : 
-                                `<span class="text-slate-400 text-xs italic">Kosong</span>`
-                            }
+                        <td class="py-3 px-3 align-top text-center">
+                            ${photoBtn}
                         </td>
-                        <td class="p-3 border-b border-slate-100 text-center">
-                            <button onclick="deleteItem(${item.id})" class="text-red-500 hover:text-red-700 p-1.5 rounded-lg hover:bg-red-50 transition-colors">
-                                <i class="fa-solid fa-trash-can text-sm"></i>
+                        <td class="py-3 px-3 align-top text-center">
+                            <button onclick="deleteItem(${item.id})" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all" title="Hapus Data">
+                                <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </td>
                     </tr>
@@ -941,401 +1060,401 @@
             }).join('');
         }
 
-        function deleteItem(id) {
+        async function deleteItem(id) {
+            const target = database.find(i => i.id === id);
             database = database.filter(i => i.id !== id);
+            saveToLocalStorage();
             renderDatabaseTable();
-            showNotification("Data evaluasi dihapus dari tampilan lokal.", "warning");
-        }
 
-        // Modal Photo Preview
-        function openModal(imgSrc) {
-            document.getElementById('modalImage').src = imgSrc;
-            document.getElementById('imageModal').classList.remove('hidden');
-        }
-        function closeModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-        }
-
-        // Print PDF Modal Logic
-        function openPrintModal() {
-            document.getElementById('printModal').classList.remove('hidden');
-        }
-        function closePrintModal() {
-            document.getElementById('printModal').classList.add('hidden');
-        }
-
-        // Generate Custom Printable View & Trigger Print to PDF
-        function generatePDFReport() {
-            const title = document.getElementById('pdfTitle').value;
-            const fLokus = document.getElementById('pdfFilterLokus').value;
-            const fAspek = document.getElementById('pdfFilterAspek').value;
-
-            const optSummary = document.getElementById('pdfOptSummary').checked;
-            const optNotes = document.getElementById('pdfOptNotes').checked;
-            const optPhotos = document.getElementById('pdfOptPhotos').checked;
-            const optSignatures = document.getElementById('pdfOptSignatures').checked;
-
-            const signLocation = document.getElementById('pdfSignLocation').value;
-            const signerName = document.getElementById('pdfSignerName').value;
-
-            // Filter Data
-            const filtered = database.filter(d => {
-                return (fLokus === 'Semua' || d.lokus === fLokus) &&
-                       (fAspek === 'Semua' || d.aspek === fAspek);
-            });
-
-            if (filtered.length === 0) {
-                showNotification("Tidak ada data yang sesuai dengan kriteria filter cetak!", "warning");
-                return;
+            if (target && target.rowIndex && GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith("https://script.google.com/")) {
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'delete', rowIndex: target.rowIndex })
+                    });
+                    showNotification("Data dihapus dari aplikasi & Database.", "warning");
+                    if (window.location.protocol !== "blob:") {
+                        setTimeout(() => fetchDataFromSheets(false), 1800);
+                    }
+                } catch (err) {
+                    showNotification("Data dihapus dari tampilan lokal.", "warning");
+                }
+            } else {
+                showNotification("Data evaluasi dihapus dari tampilan lokal.", "warning");
             }
-
-            // Calculations
-            let sesuai = 0, tdkSesuai = 0, tdkAda = 0;
-            filtered.forEach(d => {
-                if(d.kondisi === 'Sesuai') sesuai++;
-                else if(d.kondisi === 'Tidak Sesuai') tdkSesuai++;
-                else tdkAda++;
-            });
-
-            const printContainer = document.getElementById('printContainer');
-
-            let printHTML = `
-                <div style="font-family: Arial, sans-serif; color: #1e293b; line-height: 1.4;">
-                    <!-- KOP / HEADER LAPORAN -->
-                    <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
-                        <h2 style="margin: 0; font-size: 16pt; font-weight: bold; text-transform: uppercase;">${title}</h2>
-                        <p style="margin: 4px 0 0 0; font-size: 10pt; color: #475569;">
-                            TIM PENGAWASAN GABUNGAN OMBUDSMAN RI & HIMPUNAN WANITA DISABILITAS INDONESIA (HWDI) NTT
-                        </p>
-                    </div>
-
-                    <!-- META FILTER LOG -->
-                    <div style="display: flex; justify-content: space-between; font-size: 9pt; background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 16px;">
-                        <div>
-                            <strong>Lokus Wilayah:</strong> ${fLokus} <br>
-                            <strong>Aspek:</strong> ${fAspek}
-                        </div>
-                        <div style="text-align: right;">
-                            <strong>Total Sampel Evaluasi:</strong> ${filtered.length} Indikator Objek<br>
-                            <strong>Dicetak Pada:</strong> ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                        </div>
-                    </div>
-            `;
-
-            // RINGKASAN STATISTIK
-            if (optSummary) {
-                printHTML += `
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="font-size: 11pt; font-weight: bold; margin: 0 0 8px 0; border-left: 4px solid #2563eb; padding-left: 8px;">1. RINGKASAN REKAPITULASI HASIL EVALUASI</h4>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 9pt; text-align: center;">
-                            <thead>
-                                <tr style="background-color: #f1f5f9;">
-                                    <th style="border: 1px solid #cbd5e1; padding: 6px;">Total Indikator</th>
-                                    <th style="border: 1px solid #cbd5e1; padding: 6px; color: #166534; background-color: #f0fdf4;">Sesuai Standar</th>
-                                    <th style="border: 1px solid #cbd5e1; padding: 6px; color: #9a3412; background-color: #fffbeb;">Tidak Sesuai Standar</th>
-                                    <th style="border: 1px solid #cbd5e1; padding: 6px; color: #991b1b; background-color: #fef2f2;">Tidak Ada Sarpras</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold;">${filtered.length}</td>
-                                    <td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; color: #166534;">${sesuai} (${Math.round((sesuai/filtered.length)*100)}%)</td>
-                                    <td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; color: #9a3412;">${tdkSesuai} (${Math.round((tdkSesuai/filtered.length)*100)}%)</td>
-                                    <td style="border: 1px solid #cbd5e1; padding: 8px; font-weight: bold; color: #991b1b;">${tdkAda} (${Math.round((tdkAda/filtered.length)*100)}%)</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            }
-
-            // TABEL DETAIL HASIL PENGAWASAN
-            printHTML += `
-                <div style="margin-bottom: 20px;">
-                    <h4 style="font-size: 11pt; font-weight: bold; margin: 0 0 8px 0; border-left: 4px solid #2563eb; padding-left: 8px;">2. MATRIKS DETAIL HASIL PENGAWASAN LAPANGAN</h4>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 8.5pt;">
-                        <thead>
-                            <tr style="background-color: #0f172a; color: #ffffff; text-align: left;">
-                                <th style="border: 1px solid #334155; padding: 6px; width: 4%;">No</th>
-                                <th style="border: 1px solid #334155; padding: 6px; width: 18%;">Lokus & Unit Layanan</th>
-                                <th style="border: 1px solid #334155; padding: 6px; width: 22%;">Aspek & Indikator</th>
-                                <th style="border: 1px solid #334155; padding: 6px; width: 12%;">Kondisi</th>
-                                ${optNotes ? `<th style="border: 1px solid #334155; padding: 6px; width: 26%;">Catatan / Temuan Asesor</th>` : ''}
-                                ${optPhotos ? `<th style="border: 1px solid #334155; padding: 6px; width: 18%; text-align: center;">Dokumentasi</th>` : ''}
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            filtered.forEach((item, idx) => {
-                let badgeStyle = '';
-                if(item.kondisi === 'Sesuai') badgeStyle = 'color: #15803d; font-weight: bold;';
-                else if(item.kondisi === 'Tidak Sesuai') badgeStyle = 'color: #b45309; font-weight: bold;';
-                else badgeStyle = 'color: #b91c1c; font-weight: bold;';
-
-                printHTML += `
-                    <tr style="background-color: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
-                        <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">${idx + 1}</td>
-                        <td style="border: 1px solid #cbd5e1; padding: 6px;">
-                            <strong>${item.lokus}</strong><br>
-                            <span style="color: #475569;">${item.instansi}</span><br>
-                            <span style="color: #64748b; font-size: 7.5pt;">Asesor: ${item.namaAsesor}</span>
-                        </td>
-                        <td style="border: 1px solid #cbd5e1; padding: 6px;">
-                            <strong style="color: #4338ca;">[${item.aspek}]</strong><br>
-                            ${item.indikator}
-                        </td>
-                        <td style="border: 1px solid #cbd5e1; padding: 6px; ${badgeStyle}">
-                            ${item.kondisi}
-                        </td>
-                        ${optNotes ? `<td style="border: 1px solid #cbd5e1; padding: 6px; color: #334155;">${item.catatan}</td>` : ''}
-                        ${optPhotos ? `
-                            <td style="border: 1px solid #cbd5e1; padding: 6px; text-align: center;">
-                                ${item.foto ? `<img src="${item.foto}" style="max-width: 80px; max-height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #cbd5e1;">` : '<span style="color: #94a3b8; font-style: italic;">Kosong</span>'}
-                            </td>
-                        ` : ''}
-                    </tr>
-                `;
-            });
-
-            printHTML += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-
-            // KOLOM TANDA TANGAN / PENGESAHAN
-            if (optSignatures) {
-                printHTML += `
-                    <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 9.5pt; page-break-inside: avoid;">
-                        <div style="text-align: center; width: 40%;">
-                            <p style="margin: 0;">Mengetahui,</p>
-                            <p style="margin: 2px 0 60px 0; font-weight: bold;">Perwakilan Ombudsman RI Provinsi NTT</p>
-                            <p style="margin: 0; font-weight: bold; border-bottom: 1px solid #0f172a; display: inline-block; padding-bottom: 2px;">( .................................................... )</p>
-                        </div>
-                        <div style="text-align: center; width: 40%;">
-                            <p style="margin: 0;">${signLocation}</p>
-                            <p style="margin: 2px 0 60px 0; font-weight: bold;">HWDI NTT</p>
-                            <p style="margin: 0; font-weight: bold; border-bottom: 1px solid #0f172a; display: inline-block; padding-bottom: 2px;">( .................................................... )</p>
-                        </div>
-                    </div>
-                `;
-            }
-
-            printHTML += `</div>`;
-
-            // Inject into printable element & launch browser print dialog
-            printContainer.innerHTML = printHTML;
-            closePrintModal();
-
-            setTimeout(() => {
-                window.print();
-            }, 300);
         }
 
-        // Populate Options for Dashboard Filters
+        // =========================================================================
+        // NAVIGASI TAB & DIAGRAM STATISTIK
+        // =========================================================================
+        function switchTab(tabName) {
+            const secForm = document.getElementById('sectionForm');
+            const secStats = document.getElementById('sectionStats');
+            const btnForm = document.getElementById('tabFormBtn');
+            const btnStats = document.getElementById('tabStatsBtn');
+
+            if (tabName === 'form') {
+                secForm.classList.remove('hidden');
+                secStats.classList.add('hidden');
+                btnForm.className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-white text-blue-800 shadow-sm flex items-center gap-2";
+                btnStats.className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-blue-100 hover:text-white flex items-center gap-2";
+            } else {
+                secForm.classList.add('hidden');
+                secStats.classList.remove('hidden');
+                btnStats.className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-white text-blue-800 shadow-sm flex items-center gap-2";
+                btnForm.className = "px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-blue-100 hover:text-white flex items-center gap-2";
+                populateFilterOptions();
+                updateStats();
+            }
+        }
+
         function populateFilterOptions() {
-            const instansiSet = new Set(database.map(d => d.instansi));
-            const indikatorSet = new Set(database.map(d => d.indikator));
+            const lokusSel = document.getElementById('filterLokus');
+            const instansiSel = document.getElementById('filterInstansi');
+            const indikatorSel = document.getElementById('filterIndikator');
 
-            const instansiSelect = document.getElementById('filterInstansi');
-            const indikatorSelect = document.getElementById('filterIndikator');
+            const curLokus = lokusSel.value;
+            const curInstansi = instansiSel.value;
+            const curIndikator = indikatorSel.value;
 
-            instansiSelect.innerHTML = '<option value="Semua">Semua Instansi</option>' + 
-                [...instansiSet].map(i => `<option value="${i}">${i}</option>`).join('');
+            const uniqueLokus = [...new Set(database.map(d => d.lokus))].sort();
+            const uniqueInstansi = [...new Set(database.map(d => d.instansi))].sort();
+            const uniqueIndikator = [...new Set(database.map(d => d.indikator))].sort();
 
-            indikatorSelect.innerHTML = '<option value="Semua">Semua Indikator</option>' + 
-                [...indikatorSet].map(i => `<option value="${i}">${i}</option>`).join('');
+            lokusSel.innerHTML = '<option value="ALL">Semua Lokus (23 Wilayah NTT)</option>' +
+                uniqueLokus.map(l => `<option value="${l}">${l}</option>`).join('');
+            instansiSel.innerHTML = '<option value="ALL">Semua Instansi</option>' +
+                uniqueInstansi.map(i => `<option value="${i}">${i}</option>`).join('');
+            indikatorSel.innerHTML = '<option value="ALL">Semua Indikator</option>' +
+                uniqueIndikator.map(ind => `<option value="${ind}">${ind}</option>`).join('');
+
+            if (uniqueLokus.includes(curLokus)) lokusSel.value = curLokus;
+            if (uniqueInstansi.includes(curInstansi)) instansiSel.value = curInstansi;
+            if (uniqueIndikator.includes(curIndikator)) indikatorSel.value = curIndikator;
         }
 
-        // Update Stats & Visual Diagram Charts
-        function updateStats() {
+        function resetFilters() {
+            document.getElementById('filterLokus').value = "ALL";
+            document.getElementById('filterAspek').value = "ALL";
+            document.getElementById('filterInstansi').value = "ALL";
+            document.getElementById('filterIndikator').value = "ALL";
+            updateStats();
+        }
+
+        function getFilteredData() {
             const fLokus = document.getElementById('filterLokus').value;
             const fAspek = document.getElementById('filterAspek').value;
             const fInstansi = document.getElementById('filterInstansi').value;
             const fIndikator = document.getElementById('filterIndikator').value;
 
-            const filteredData = database.filter(d => {
-                return (fLokus === 'Semua' || d.lokus === fLokus) &&
-                       (fAspek === 'Semua' || d.aspek === fAspek) &&
-                       (fInstansi === 'Semua' || d.instansi === fInstansi) &&
-                       (fIndikator === 'Semua' || d.indikator === fIndikator);
+            return database.filter(item => {
+                const matchLokus = fLokus === "ALL" || item.lokus === fLokus;
+                const matchAspek = fAspek === "ALL" || item.aspek === fAspek;
+                const matchInstansi = fInstansi === "ALL" || item.instansi === fInstansi;
+                const matchIndikator = fIndikator === "ALL" || item.indikator === fIndikator;
+                return matchLokus && matchAspek && matchInstansi && matchIndikator;
             });
-
-            // Update Summary Cards
-            let sesuai = 0, tidakSesuai = 0, tidakAda = 0;
-            filteredData.forEach(d => {
-                if(d.kondisi === 'Sesuai') sesuai++;
-                else if(d.kondisi === 'Tidak Sesuai') tidakSesuai++;
-                else tidakAda++;
-            });
-
-            document.getElementById('statTotal').innerText = filteredData.length;
-            document.getElementById('statSesuai').innerText = sesuai;
-            document.getElementById('statTidakSesuai').innerText = tidakSesuai;
-            document.getElementById('statTidakAda').innerText = tidakAda;
-
-            // Render 4 Diagram Charts
-            renderCharts(filteredData);
-
-            // Update Detailed Table
-            const tbody = document.getElementById('statsTableBody');
-            if(filteredData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-400">Tidak ada data yang sesuai dengan kombinasi filter.</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = filteredData.map(d => {
-                let badgeColor = '';
-                if(d.kondisi === 'Sesuai') badgeColor = 'bg-emerald-100 text-emerald-800';
-                else if(d.kondisi === 'Tidak Sesuai') badgeColor = 'bg-amber-100 text-amber-800';
-                else badgeColor = 'bg-red-100 text-red-800';
-
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-2.5 font-semibold text-slate-800">${d.lokus}</td>
-                        <td class="p-2.5 text-slate-700">${d.instansi}</td>
-                        <td class="p-2.5 text-purple-700 font-medium">${d.aspek}</td>
-                        <td class="p-2.5 text-slate-800">${d.indikator}</td>
-                        <td class="p-2.5">
-                            <span class="px-2 py-0.5 rounded text-[11px] font-semibold ${badgeColor}">${d.kondisi}</span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
         }
 
-        // Helper untuk Kalkulasi Data Stacked Bar Diagram
-        function getStackedCounts(data, key) {
-            const categories = [...new Set(data.map(d => d[key]))];
-            const Sesuai = [];
-            const TidakSesuai = [];
-            const TidakAda = [];
+        function updateStats() {
+            const filtered = getFilteredData();
+            const total = filtered.length;
+            const sesuai = filtered.filter(d => d.kondisi === "Sesuai Standar").length;
+            const tidakSesuai = filtered.filter(d => d.kondisi === "Tidak Sesuai Standar").length;
+            const tidakAda = filtered.filter(d => d.kondisi === "Tidak Tersedia").length;
 
-            categories.forEach(cat => {
-                const items = data.filter(d => d[key] === cat);
-                Sesuai.push(items.filter(d => d.kondisi === 'Sesuai').length);
-                TidakSesuai.push(items.filter(d => d.kondisi === 'Tidak Sesuai').length);
-                TidakAda.push(items.filter(d => d.kondisi === 'Tidak Ada').length);
-            });
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statSesuai').textContent = sesuai;
+            document.getElementById('statTidakSesuai').textContent = tidakSesuai;
+            document.getElementById('statTidakAda').textContent = tidakAda;
 
-            return { labels: categories, Sesuai, TidakSesuai, TidakAda };
+            document.getElementById('pctSesuai').textContent = total ? Math.round((sesuai / total) * 100) + "%" : "0%";
+            document.getElementById('pctTidakSesuai').textContent = total ? Math.round((tidakSesuai / total) * 100) + "%" : "0%";
+            document.getElementById('pctTidakAda').textContent = total ? Math.round((tidakAda / total) * 100) + "%" : "0%";
+
+            renderStackedChart('chartLokus', 'lokus', filtered, false, chartLokusObj, obj => chartLokusObj = obj);
+            renderStackedChart('chartAspek', 'aspek', filtered, true, chartAspekObj, obj => chartAspekObj = obj);
+            renderStackedChart('chartInstansi', 'instansi', filtered, true, chartInstansiObj, obj => chartInstansiObj = obj);
+            renderStackedChart('chartIndikator', 'indikator', filtered, true, chartIndikatorObj, obj => chartIndikatorObj = obj);
         }
 
-        // Render Visualisasi 4 Diagram
-        function renderCharts(data) {
-            // Destroy existing charts to prevent memory leak / visual glitch
-            if(chartLokusObj) chartLokusObj.destroy();
-            if(chartAspekObj) chartAspekObj.destroy();
-            if(chartInstansiObj) chartInstansiObj.destroy();
-            if(chartIndikatorObj) chartIndikatorObj.destroy();
+        function renderStackedChart(canvasId, groupKey, dataList, isHorizontal, existingChart, setChartCallback) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (existingChart) existingChart.destroy();
 
-            const chartConfigOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
+            const groups = {};
+            dataList.forEach(item => {
+                const key = item[groupKey] || "Tidak Diketahui";
+                if (!groups[key]) {
+                    groups[key] = { sesuai: 0, tidakSesuai: 0, tidakAda: 0 };
                 }
-            };
-
-            // 1. Diagram Lokus (Vertical Stacked Bar)
-            const lokusData = getStackedCounts(data, 'lokus');
-            chartLokusObj = new Chart(document.getElementById('chartLokus'), {
-                type: 'bar',
-                data: {
-                    labels: lokusData.labels,
-                    datasets: [
-                        { label: 'Sesuai', data: lokusData.Sesuai, backgroundColor: '#10b981' },
-                        { label: 'Tdk Sesuai', data: lokusData.TidakSesuai, backgroundColor: '#f59e0b' },
-                        { label: 'Tidak Ada', data: lokusData.TidakAda, backgroundColor: '#ef4444' }
-                    ]
-                },
-                options: { ...chartConfigOptions, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
+                if (item.kondisi === "Sesuai Standar") groups[key].sesuai++;
+                else if (item.kondisi === "Tidak Sesuai Standar") groups[key].tidakSesuai++;
+                else groups[key].tidakAda++;
             });
 
-            // 2. Diagram Aspek (Horizontal Stacked Bar)
-            const aspekData = getStackedCounts(data, 'aspek');
-            chartAspekObj = new Chart(document.getElementById('chartAspek'), {
+            const labels = Object.keys(groups);
+            const shortLabels = labels.map(l => l.length > 26 ? l.substring(0, 24) + "..." : l);
+
+            const newChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: aspekData.labels,
+                    labels: shortLabels,
                     datasets: [
-                        { label: 'Sesuai', data: aspekData.Sesuai, backgroundColor: '#10b981' },
-                        { label: 'Tdk Sesuai', data: aspekData.TidakSesuai, backgroundColor: '#f59e0b' },
-                        { label: 'Tidak Ada', data: aspekData.TidakAda, backgroundColor: '#ef4444' }
+                        {
+                            label: 'Sesuai Standar',
+                            data: labels.map(k => groups[k].sesuai),
+                            backgroundColor: '#10b981',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Tidak Sesuai',
+                            data: labels.map(k => groups[k].tidakSesuai),
+                            backgroundColor: '#f59e0b',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Tidak Ada',
+                            data: labels.map(k => groups[k].tidakAda),
+                            backgroundColor: '#f43f5e',
+                            borderRadius: 4
+                        }
                     ]
                 },
-                options: { ...chartConfigOptions, indexAxis: 'y', scales: { x: { stacked: true }, y: { stacked: true } } }
+                options: {
+                    indexAxis: isHorizontal ? 'y' : 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 11, family: 'Inter' } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => labels[items[0].dataIndex]
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { stacked: true, ticks: { font: { size: 10 }, precision: 0 }, grid: { display: !isHorizontal } },
+                        y: { stacked: true, ticks: { font: { size: 10 }, precision: 0 }, grid: { display: isHorizontal } }
+                    }
+                }
             });
 
-            // 3. Diagram Instansi (Vertical Stacked Bar)
-            const instansiData = getStackedCounts(data, 'instansi');
-            chartInstansiObj = new Chart(document.getElementById('chartInstansi'), {
-                type: 'bar',
-                data: {
-                    labels: instansiData.labels,
-                    datasets: [
-                        { label: 'Sesuai', data: instansiData.Sesuai, backgroundColor: '#10b981' },
-                        { label: 'Tdk Sesuai', data: instansiData.TidakSesuai, backgroundColor: '#f59e0b' },
-                        { label: 'Tidak Ada', data: instansiData.TidakAda, backgroundColor: '#ef4444' }
-                    ]
-                },
-                options: { ...chartConfigOptions, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } } }
-            });
-
-            // 4. Diagram Indikator (Horizontal Stacked Bar)
-            const indikatorData = getStackedCounts(data, 'indikator');
-            chartIndikatorObj = new Chart(document.getElementById('chartIndikator'), {
-                type: 'bar',
-                data: {
-                    labels: indikatorData.labels,
-                    datasets: [
-                        { label: 'Sesuai', data: indikatorData.Sesuai, backgroundColor: '#10b981' },
-                        { label: 'Tdk Sesuai', data: indikatorData.TidakSesuai, backgroundColor: '#f59e0b' },
-                        { label: 'Tidak Ada', data: indikatorData.TidakAda, backgroundColor: '#ef4444' }
-                    ]
-                },
-                options: { ...chartConfigOptions, indexAxis: 'y', scales: { x: { stacked: true }, y: { stacked: true } } }
-            });
+            setChartCallback(newChart);
         }
 
-        // Ekspor Rekapitulasi Data ke CSV
-        function exportCSV() {
-            if (database.length === 0) {
-                showNotification("Belum ada data untuk diekspor!", "warning");
+        // =========================================================================
+        // EKSPOR CSV SESUAI FILTER
+        // =========================================================================
+        function exportFilteredCSV() {
+            const filtered = getFilteredData();
+            if (filtered.length === 0) {
+                showNotification("Tidak ada data sesuai filter untuk diekspor.", "warning");
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Waktu Evaluasi,Lokus Wilayah,Nama Asesor,Instansi/Unit Layanan,Aspek,Indikator Sarpras,Kesesuaian Standar,Catatan Temuan\n";
+            const headers = ["Waktu Input", "Lokus Wilayah", "Nama Asesor", "Instansi / Unit Layanan", "Aspek Penilaian", "Indikator Sarpras", "Kesesuaian Standar", "Catatan Temuan"];
+            const rows = filtered.map(d => [
+                `"${(d.timestamp || '').replace(/"/g, '""')}"`,
+                `"${(d.lokus || '').replace(/"/g, '""')}"`,
+                `"${(d.namaAsesor || '').replace(/"/g, '""')}"`,
+                `"${(d.instansi || '').replace(/"/g, '""')}"`,
+                `"${(d.aspek || '').replace(/"/g, '""')}"`,
+                `"${(d.indikator || '').replace(/"/g, '""')}"`,
+                `"${(d.kondisi || '').replace(/"/g, '""')}"`,
+                `"${(d.catatan || '').replace(/"/g, '""')}"`
+            ].join(","));
 
-            database.forEach(d => {
-                const row = [
-                    `"${d.timestamp}"`,
-                    `"${d.lokus}"`,
-                    `"${d.namaAsesor}"`,
-                    `"${d.instansi}"`,
-                    `"${d.aspek}"`,
-                    `"${d.indikator}"`,
-                    `"${d.kondisi}"`,
-                    `"${d.catatan.replace(/"/g, '""')}"`
-                ].join(",");
-                csvContent += row + "\n";
-            });
-
-            const encodedUri = encodeURI(csvContent);
+            const csvContent = "\uFEFF" + [headers.join(","), ...rows].join("\n");
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Laporan_Pengawasan_Disabilitas_NTT_${Date.now()}.csv`);
+            const dateStr = new Date().toISOString().slice(0, 10);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Rekap_Pengawasan_Sarpras_NTT_${dateStr}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+
+            showNotification(`Berhasil mengunduh ${filtered.length} baris data ke CSV.`, "success");
         }
 
-        // Inisialisasi Database Kosong (Siap Pakai Lapangan)
+        // =========================================================================
+        // MODAL FOTO & CETAK PDF KUSTOM
+        // =========================================================================
+        function openPhotoModal(id) {
+            const item = database.find(d => String(d.id) === String(id));
+            if (!item || !item.foto) return;
+            document.getElementById('modalPhotoTitle').textContent = `${item.indikator} - ${item.instansi}`;
+            document.getElementById('modalPhotoImg').src = item.foto;
+            document.getElementById('modalPhotoCaption').textContent = `Lokus: ${item.lokus} | Status: ${item.kondisi} | Catatan: ${item.catatan}`;
+            document.getElementById('photoModal').classList.remove('hidden');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').classList.add('hidden');
+        }
+
+        function openPrintModal() {
+            const pLokus = document.getElementById('printFilterLokus');
+            const uniqueLokus = [...new Set(database.map(d => d.lokus))].sort();
+            pLokus.innerHTML = '<option value="ALL">Semua Lokus Wilayah</option>' +
+                uniqueLokus.map(l => `<option value="${l}">${l}</option>`).join('');
+            document.getElementById('printModal').classList.remove('hidden');
+        }
+
+        function closePrintModal() {
+            document.getElementById('printModal').classList.add('hidden');
+        }
+
+        function executePrintPDF() {
+            const title = document.getElementById('printTitle').value || "LAPORAN HASIL PEMANTAUAN SARPRAS";
+            const fLokus = document.getElementById('printFilterLokus').value;
+            const fAspek = document.getElementById('printFilterAspek').value;
+            const jabatan = document.getElementById('printJabatan').value;
+            const penandatangan = document.getElementById('printPenandatangan').value || "( ........................................ )";
+            const incSummary = document.getElementById('chkPrintSummary').checked;
+            const incFoto = document.getElementById('chkPrintFoto').checked;
+            const incSig = document.getElementById('chkPrintSignature').checked;
+
+            const printData = database.filter(d => {
+                const mL = fLokus === "ALL" || d.lokus === fLokus;
+                const mA = fAspek === "ALL" || d.aspek === fAspek;
+                return mL && mA;
+            });
+
+            if (printData.length === 0) {
+                showNotification("Tidak ada data yang sesuai dengan pilihan cetak PDF.", "warning");
+                return;
+            }
+
+            const total = printData.length;
+            const sesuai = printData.filter(d => d.kondisi === "Sesuai Standar").length;
+            const tidakSesuai = printData.filter(d => d.kondisi === "Tidak Sesuai Standar").length;
+            const tidakAda = printData.filter(d => d.kondisi === "Tidak Tersedia").length;
+            const tglCetak = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+            let summaryHTML = "";
+            if (incSummary) {
+                summaryHTML = `
+                    <div style="display:flex; gap:12px; margin-bottom:16px;">
+                        <div style="flex:1; border:1px solid #cbd5e1; padding:8px; border-radius:6px; text-align:center;">
+                            <div style="font-size:10px; color:#64748b;">TOTAL DIPANTAU</div>
+                            <div style="font-size:16px; font-weight:bold;">${total}</div>
+                        </div>
+                        <div style="flex:1; border:1px solid #10b981; background:#ecfdf5; padding:8px; border-radius:6px; text-align:center;">
+                            <div style="font-size:10px; color:#047857;">SESUAI STANDAR</div>
+                            <div style="font-size:16px; font-weight:bold; color:#047857;">${sesuai} (${Math.round(sesuai/total*100)}%)</div>
+                        </div>
+                        <div style="flex:1; border:1px solid #f59e0b; background:#fffbeb; padding:8px; border-radius:6px; text-align:center;">
+                            <div style="font-size:10px; color:#b45309;">TIDAK SESUAI</div>
+                            <div style="font-size:16px; font-weight:bold; color:#b45309;">${tidakSesuai} (${Math.round(tidakSesuai/total*100)}%)</div>
+                        </div>
+                        <div style="flex:1; border:1px solid #f43f5e; background:#fff1f2; padding:8px; border-radius:6px; text-align:center;">
+                            <div style="font-size:10px; color:#be123c;">TIDAK TERSEDIA</div>
+                            <div style="font-size:16px; font-weight:bold; color:#be123c;">${tidakAda} (${Math.round(tidakAda/total*100)}%)</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const rowsHTML = printData.map((d, idx) => `
+                <tr>
+                    <td style="text-align:center;">${idx + 1}</td>
+                    <td><strong>${d.instansi}</strong><br><span style="color:#475569; font-size:10px;">${d.lokus}</span></td>
+                    <td><span style="font-size:10px; color:#3730a3;">${d.aspek}</span><br><strong>${d.indikator}</strong></td>
+                    <td style="font-weight:bold; color:${d.kondisi === 'Sesuai Standar' ? '#047857' : d.kondisi === 'Tidak Sesuai Standar' ? '#b45309' : '#be123c'};">${d.kondisi}</td>
+                    <td>${d.catatan}</td>
+                    ${incFoto ? `<td style="text-align:center;">${d.foto ? `<img src="${d.foto}" style="max-height:55px; max-width:85px; object-fit:cover; border-radius:4px; margin:auto;">` : '-'}</td>` : ''}
+                </tr>
+            `).join('');
+
+            const sigHTML = incSig ? `
+                <div style="margin-top:24px; display:flex; justify-content:flex-end;">
+                    <div style="text-align:center; width:260px; font-size:11px;">
+                        <p>Kupang, ${tglCetak}</p>
+                        <p style="font-weight:bold; margin-top:2px;">${jabatan}</p>
+                        <div style="height:55px;"></div>
+                        <p style="font-weight:bold; text-decoration:underline;">${penandatangan}</p>
+                    </div>
+                </div>
+            ` : '';
+
+            const printArea = document.getElementById('printArea');
+            printArea.innerHTML = `
+                <div style="text-align:center; border-bottom:2px solid #1e293b; padding-bottom:10px; margin-bottom:14px;">
+                    <h1 style="font-size:15px; font-weight:bold; margin:0; text-transform:uppercase;">${title}</h1>
+                    <p style="font-size:11px; color:#475569; margin:4px 0 0 0;">
+                        Filter Lokus: <strong>${fLokus === 'ALL' ? 'Semua Wilayah NTT' : fLokus}</strong> | 
+                        Filter Aspek: <strong>${fAspek === 'ALL' ? 'Semua Aspek' : fAspek}</strong> | 
+                        Tanggal Cetak: ${tglCetak}
+                    </p>
+                </div>
+                ${summaryHTML}
+                <table>
+                    <thead>
+                        <tr style="background:#f1f5f9;">
+                            <th style="width:30px; text-align:center;">No</th>
+                            <th>Instansi & Lokus</th>
+                            <th>Aspek & Indikator</th>
+                            <th style="width:110px;">Status</th>
+                            <th>Catatan Temuan</th>
+                            ${incFoto ? '<th style="width:95px; text-align:center;">Dokumentasi</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHTML}
+                    </tbody>
+                </table>
+                ${sigHTML}
+            `;
+
+            closePrintModal();
+            printArea.classList.remove('hidden');
+            setTimeout(() => {
+                window.print();
+                printArea.classList.add('hidden');
+            }, 400);
+        }
+
+        // =========================================================================
+        // NOTIFIKASI TOAST
+        // =========================================================================
+        function showNotification(message, type = "info") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = "bg-slate-800 text-white border-slate-700";
+            let icon = "fa-circle-info text-blue-400";
+            if (type === "success") {
+                bgClass = "bg-emerald-900 text-white border-emerald-700";
+                icon = "fa-circle-check text-emerald-400";
+            } else if (type === "warning") {
+                bgClass = "bg-amber-900 text-white border-amber-700";
+                icon = "fa-triangle-exclamation text-amber-400";
+            } else if (type === "error") {
+                bgClass = "bg-rose-900 text-white border-rose-700";
+                icon = "fa-circle-xmark text-rose-400";
+            }
+
+            toast.className = `${bgClass} border px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 text-xs font-medium pointer-events-auto transition-all duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${message}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 300);
+            }, 3800);
+        }
+
+        // Inisialisasi saat halaman dibuka: tarik data langsung dari Google Sheets
         window.onload = function() {
-            database = [];
-            renderDatabaseTable();
+            fetchDataFromSheets(false);
         };
     </script>
 </body>
